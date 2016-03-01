@@ -1,23 +1,6 @@
 #include "Building.h"
 
-#include "glew.h"		// include GL Extension Wrangler
-#include "glfw3.h"  // include GLFW helper library
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include "gtc/constants.hpp"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <vector>
-#include <string>
-#include <fstream> 
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <vector>
-#include <cctype>
-#include <gtx/rotate_vector.hpp>
+
 //remove as not needed, just copied everything used in main
 using namespace std;
 
