@@ -23,9 +23,9 @@ vector<glm::vec3> Building::getBldgPoints() {
 
 vector<glm::vec3> Building::generateBldg(float h, float w, glm::vec3 c) {
 	Building bldg = Building(h, w, c);
-	
-	
-
+	//pick some 3D model from some directory of building models
+	//scale it to meet the width and height defined
+	//pushback all of its points to bldgPoints for this building
 	return getBldgPoints();
 }
 

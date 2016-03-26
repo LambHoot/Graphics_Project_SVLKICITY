@@ -73,7 +73,6 @@
   <ItemGroup>
     <ClCompile Include="..\Source\main.cpp" />
     <ClCompile Include="Building.cpp" />
-    <ClCompile Include="RawModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\COMP371_hw1.fss" />
@@ -81,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Building.h" />
-    <ClInclude Include="RawModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
