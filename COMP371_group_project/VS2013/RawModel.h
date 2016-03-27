@@ -12,12 +12,14 @@ class RawModel
 private: 
 	GLuint vaoID;
 	GLuint vertexCount;
+	GLuint* indices;
 
 public:
-	RawModel(GLuint vaoID, GLuint vertexCount);
+	RawModel(GLuint vaoID, GLuint* indices, GLuint vertexCount);
 	~RawModel();
 
 	GLuint getVAOID();
+	GLuint* getIndices();
 	GLuint getVertexCount();
 };
 

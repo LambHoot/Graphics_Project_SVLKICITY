@@ -38,9 +38,6 @@ glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
 
-GLuint VBO, EBO;
-GLuint VAO;
-
 GLfloat point_size = 3.0f;
 
 //Window resize
@@ -139,11 +136,26 @@ bool initialize() {
 	return true;
 }
 
+//to be removed and replaced with arrays;
+vector<GLuint> VAO, VBO;
+GLuint EBO; //still unused
+
 bool cleanUp() {
 	glDisableVertexAttribArray(0);
 	//Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+
+	GLuint *vao, *vbo;
+	for (int i = 0; i < VAO.size(); i++){
+		vao = &VAO[i];
+		cout << "Deleting VAO id = " << vao << endl;
+		glDeleteVertexArrays(1,vao);
+	}
+	for (int i = 0; i < VBO.size(); i++){
+		vbo = &VBO[i];
+		cout << "Deleting VBO id = " << vbo << endl;
+		glDeleteBuffers(1, vbo);
+	}
+	
 	glDeleteBuffers(1, &EBO);
 
 	// Close GL context and any other GLFW resources
@@ -250,8 +262,9 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 }
 
 void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(attNumber);
 	glVertexAttribPointer(
@@ -264,33 +277,56 @@ void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
 		);
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
+	VBO.push_back(vbo);
+
 	//TODO: NOTE: vbo memory tracking not currently implemented. Once many are made, they must be deleted when done.
 }
 
-RawModel loadToVAO(GLfloat positions[], int array_length){
+void bindIndicesBuffer(GLuint indices[], int data_size){
+	GLuint vbo;
+	glGenBuffers(0, &vbo);
+	VBO.push_back(vbo);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0); ??
+}
+
+
+RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
 	GLuint vao;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	storeDataInAttribList(0, positions, sizeof(positions)*array_length);
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
+	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
 	glBindVertexArray(0);
+
+	VAO.push_back(vao);
+
 	//TODO: NOTE: vao memory tracking not currently implemented. Once many are made, they must be deleted when done.
-	return RawModel(VAO, array_length/3); // An Okay Constructor?
+	return RawModel(vao, indices, indices_length); // An Okay Constructor?
 }
 
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_TRIANGLES, 0, model.getVertexCount());
+	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, model.getIndices());
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
 
 //for debug -- raw data
-// An array of 3 vectors which represents 3 vertices
+// An array of 4 vectors which represents 4 vertices to make a box
 GLfloat triangle[] = {
-	-1.0f, -1.0f, 0.0f,
-	1.0f, -1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
+	-0.5f, 0.5f, 0,
+	-0.5f, -0.5f, 0,
+	0.5f, -0.5f, 0,
+	0.5f, 0.5f, 0.0f
+};
+
+GLuint indices[] = {
+	0, 1, 3,
+	3, 1, 2
 };
 
 int main() {
@@ -305,7 +341,7 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create data
-	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle));
+	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
 
 	while (!glfwWindowShouldClose(window)) {
 		// wipe the drawing surface clear
