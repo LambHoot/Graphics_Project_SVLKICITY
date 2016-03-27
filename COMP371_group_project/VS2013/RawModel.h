@@ -8,10 +8,10 @@
 
 class RawModel
 {
-private:
+
+private: 
 	GLuint vaoID;
 	GLuint vertexCount;
-
 
 public:
 	RawModel(GLuint vaoID, GLuint vertexCount);

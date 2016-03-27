@@ -38,13 +38,10 @@ glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
 
-
 GLuint VBO, EBO;
 GLuint VAO;
 
 GLfloat point_size = 3.0f;
-
-GLfloat* g_vertex_buffer_data;
 
 //Window resize
 GLuint WIDTH = 800;
@@ -252,19 +249,10 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
-RawModel loadToVAO(GLfloat positions[]){
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	//TODO: NOTE: vao memory tracking not currently implemented. Once many are made, they must be deleted when done.
-
-	return RawModel(VAO, sizeof(positions)/ 3); // An Okay Constructor?
-}
-
-void storeDataInAttribList(int attNumber, GLfloat* list[]){
+void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, point_size * sizeof(list), list, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(attNumber);
 	glVertexAttribPointer(
 		attNumber,
@@ -274,9 +262,19 @@ void storeDataInAttribList(int attNumber, GLfloat* list[]){
 		0,                  // Distance between vertices in array
 		(void*)0            // array buffer offset
 		);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
 	//TODO: NOTE: vbo memory tracking not currently implemented. Once many are made, they must be deleted when done.
+}
+
+RawModel loadToVAO(GLfloat positions[], int array_length){
+	GLuint vao;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	storeDataInAttribList(0, positions, sizeof(positions)*array_length);
+	glBindVertexArray(0);
+	//TODO: NOTE: vao memory tracking not currently implemented. Once many are made, they must be deleted when done.
+	return RawModel(VAO, array_length/3); // An Okay Constructor?
 }
 
 void render(RawModel model){
@@ -287,6 +285,14 @@ void render(RawModel model){
 	glBindVertexArray(0);
 }
 
+//for debug -- raw data
+// An array of 3 vectors which represents 3 vertices
+GLfloat triangle[] = {
+	-1.0f, -1.0f, 0.0f,
+	1.0f, -1.0f, 0.0f,
+	0.0f, 1.0f, 0.0f,
+};
+
 int main() {
 
 	initialize();
@@ -294,29 +300,12 @@ int main() {
 	///Load the shaders
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
-
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-		);
-
+	//Set the camera
 	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, 0.0f, -10.0f)); //Camera's position
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
+	//create data
+	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle));
 
 	while (!glfwWindowShouldClose(window)) {
 		// wipe the drawing surface clear
@@ -333,8 +322,6 @@ int main() {
 			model_matrix = glm::rotate(model_matrix, 0.01f, glm::vec3(isPressedx, isPressedy, 0.0f));
 		}
 
-		g_vertex_buffer_data = new GLfloat[];
-
 		glUseProgram(shader_program);
 
 		//Pass the values of the three matrices to the shaders
@@ -342,13 +329,8 @@ int main() {
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
-		//4 = point count
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data)*point_size*4, g_vertex_buffer_data, GL_DYNAMIC_DRAW);
-
-		//glBindVertexArray(VAO);
-		glDrawArrays(GL_POINTS, 0, 4);
-
-		//glBindVertexArray(0);
+		//DRAW HERE
+		render(triModel);
 
 		// update other events like input handling
 		glfwPollEvents();
