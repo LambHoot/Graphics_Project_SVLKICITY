@@ -2,29 +2,7 @@
 
 in vec3 out_Color;
 out vec4 frag_colour;	//final output color used to render the point
-out vec4 real_colour;
-out vec4 tangent_colour;
-out vec4 triangle_colour;
-out vec4 spline_colour;
 
 void main () {
-	 frag_colour = vec4(1.0f,1.0f,0.0f, 1.0f);//default yellow
-
-	 spline_colour = vec4(0.0f,0.0f,1.0f,1.0f);//blue
-	 real_colour = vec4(1.0f,1.0f,0.0f, 1.0f);//yellow
-	 tangent_colour = vec4(1.0f,0.0f,0.0f,1.0f);//red
-	 triangle_colour = vec4(0.0f,1.0f,0.0f,1.0f);//green
-
-	 if(out_Color.z == 0.5f){
-	 frag_colour = spline_colour;
-	 }
-	 if(out_Color.z == 0.6f){
-	 frag_colour = triangle_colour;
-	 }
-	 if(out_Color.z == 0.7f){
-	 frag_colour = tangent_colour;
-	 }
-	 if(out_Color.z == 0.8f){
-	 frag_colour = real_colour;
-	 }
+	frag_colour = vec4 (out_Color, 1.0);
 }

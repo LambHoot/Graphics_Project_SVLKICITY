@@ -17,6 +17,8 @@
 #include <cctype>
 #include <gtx/rotate_vector.hpp>
 
+#include "../VS2013/RawModel.h"
+
 using namespace std;
 
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
@@ -36,12 +38,7 @@ glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
 
-
-GLuint VBO, VAO, EBO;
-
 GLfloat point_size = 3.0f;
-
-GLfloat* g_vertex_buffer_data;
 
 //Window resize
 GLuint WIDTH = 800;
@@ -51,17 +48,13 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	HEIGHT = height;
 	//reset view
 	glViewport(0, 0, WIDTH, HEIGHT);
-	//reset ortho
-	glOrtho(0, (GLfloat)WIDTH, 0, (GLfloat)HEIGHT, 0.0f, 0.0f);//change to proj
-	//reset proj
-	proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 50.0f);
 }
 
-float translateSensitivityX = 3.0f;
-float translateSensitivityY = 3.0f;
+float translateSensitivityX = 0.005f;
+float translateSensitivityY = 0.005f;
 float isPressedy = 0.0f;
 float isPressedx = 0.0f;
-void key_callback (GLFWwindow *_window, int key, int scancode, int action, int mods){
+void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
 		if (action == GLFW_PRESS){
@@ -70,29 +63,13 @@ void key_callback (GLFWwindow *_window, int key, int scancode, int action, int m
 		break;
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS){
-			isPressedy = translateSensitivityY;
-		}
-		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
-		}
-		break;
-	case GLFW_KEY_RIGHT:
-		if (action == GLFW_PRESS){
-			isPressedy = -translateSensitivityY;
-		}
-		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
-		}
-		break;
-	case GLFW_KEY_UP:
-		if (action == GLFW_PRESS){
 			isPressedx = translateSensitivityX;
 		}
 		else if (action == GLFW_RELEASE) {
 			isPressedx = 0.0f;
 		}
 		break;
-	case GLFW_KEY_DOWN:
+	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS){
 			isPressedx = -translateSensitivityX;
 		}
@@ -100,11 +77,26 @@ void key_callback (GLFWwindow *_window, int key, int scancode, int action, int m
 			isPressedx = 0.0f;
 		}
 		break;
+	case GLFW_KEY_UP:
+		if (action == GLFW_PRESS){
+			isPressedy = translateSensitivityY;
+		}
+		else if (action == GLFW_RELEASE) {
+			isPressedy = 0.0f;
+		}
+		break;
+	case GLFW_KEY_DOWN:
+		if (action == GLFW_PRESS){
+			isPressedy = -translateSensitivityY;
+		}
+		else if (action == GLFW_RELEASE) {
+			isPressedy = 0.0f;
+		}
+		break;
 	default: break;
 	}
-	
-}
 
+}
 
 bool initialize() {
 	/// Initialize GL context and O/S window using the GLFW helper library
@@ -115,7 +107,7 @@ bool initialize() {
 
 	/// Create a window of size 800x800
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
-	window = glfwCreateWindow(WIDTH, HEIGHT, "COMP371: Assignment 2 - Hermite Splines - d_kefal_27019920", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "SOUVLAKI CITY", NULL, NULL);
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
@@ -124,10 +116,6 @@ bool initialize() {
 	//register callbacks
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowSizeCallback(window, window_resize_callback);
-
-	//ortho projection 
-	proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 50.0f);
-	glOrtho(0, (GLfloat)WIDTH, 0, (GLfloat)HEIGHT, 0.0f, 0.0f);
 
 	glfwMakeContextCurrent(window);
 
@@ -148,11 +136,26 @@ bool initialize() {
 	return true;
 }
 
+//to be removed and replaced with arrays;
+vector<GLuint> VAO, VBO;
+GLuint EBO; //still unused
+
 bool cleanUp() {
 	glDisableVertexAttribArray(0);
 	//Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+
+	GLuint *vao, *vbo;
+	for (int i = 0; i < VAO.size(); i++){
+		vao = &VAO[i];
+		cout << "Deleting VAO id = " << vao << endl;
+		glDeleteVertexArrays(1,vao);
+	}
+	for (int i = 0; i < VBO.size(); i++){
+		vbo = &VBO[i];
+		cout << "Deleting VBO id = " << vbo << endl;
+		glDeleteBuffers(1, vbo);
+	}
+	
 	glDeleteBuffers(1, &EBO);
 
 	// Close GL context and any other GLFW resources
@@ -258,57 +261,100 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
+void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(attNumber);
+	glVertexAttribPointer(
+		attNumber,
+		3,                  // 3 for 3D
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // Distance between vertices in array
+		(void*)0            // array buffer offset
+		);
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+	VBO.push_back(vbo);
+}
+
+void bindIndicesBuffer(GLuint indices[], int data_size){
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil
+
+	VBO.push_back(vbo);
+}
+
+
+RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
+	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
+	glBindVertexArray(0);
+
+	VAO.push_back(vao);
+
+	//TODO: NOTE: vao memory tracking not currently implemented. Once many are made, they must be deleted when done.
+	return RawModel(vao, indices, indices_length); // An Okay Constructor?
+}
+
+void render(RawModel model){
+	glBindVertexArray(model.getVAOID());
+	glEnableVertexAttribArray(0);
+	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, (void*)0);
+	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
+}
+
+//for debug -- raw data
+// An array of 4 vectors which represents 4 vertices to make a box
+GLfloat triangle[] = {
+	-0.5f, 0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,
+	0.5f, -0.5f, 0.0f,
+	0.5f, 0.5f, 0.0f
+};
+
+GLuint indices[] = {
+	0, 1, 3,
+	3, 1, 2
+};
 
 int main() {
 
 	initialize();
 
-	int bufferSize;
-	int lineRange;
-	int triangleSize = 3 * 3;
-	int triangleHeadSP = 0;
-
 	///Load the shaders
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
+	//Set the camera
+	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, 0.0f, -10.0f)); //Camera's position
+	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data)*1.0f, g_vertex_buffer_data, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-		);
-
-	//proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 100.0f);
-	view_matrix = glm::translate(view_matrix, glm::vec3(WIDTH / 2, HEIGHT / 2, -30.0f));
+	//create data
+	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
 
 	while (!glfwWindowShouldClose(window)) {
-
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
 		glPointSize(point_size);
 
 		//translating camera on the x and y axis
-		if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
-			view_matrix = glm::translate(view_matrix, glm::vec3(-isPressedy, -isPressedx, 0.0f));
-		}
+		/*if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
+			view_matrix = glm::translate(view_matrix, glm::vec3(isPressedx, -isPressedy, 0.0f));
+		}*/
 
-		//REPASS THE DATA TO THE BUFFER
-		//DK CHANGE THE * 3 TO SIZE OF POINTS VECTOR
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data)*(3), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
+		if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
+			model_matrix = glm::rotate(model_matrix, 0.01f, glm::vec3(isPressedx, isPressedy, 0.0f));
+		}
 
 		glUseProgram(shader_program);
 
@@ -317,10 +363,8 @@ int main() {
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
-		glBindVertexArray(VAO);
-
-
-		glBindVertexArray(0);
+		//DRAW HERE
+		render(triModel);
 
 		// update other events like input handling
 		glfwPollEvents();
