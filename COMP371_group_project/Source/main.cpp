@@ -17,6 +17,7 @@
 #include <cctype>
 #include <gtx/rotate_vector.hpp>
 
+// Custom Defined headers
 #include "../VS2013/RawModel.h"
 
 using namespace std;
@@ -38,6 +39,7 @@ glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
 
+// Given a 3D environment
 GLfloat point_size = 3.0f;
 
 //Window resize
@@ -50,6 +52,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
+// Movement variables
 float translateSensitivityX = 0.005f;
 float translateSensitivityY = 0.005f;
 float isPressedy = 0.0f;
@@ -136,7 +139,7 @@ bool initialize() {
 	return true;
 }
 
-//to be removed and replaced with arrays;
+//Used for Memory tracking
 vector<GLuint> VAO, VBO;
 GLuint EBO; //still unused
 
@@ -285,11 +288,10 @@ void bindIndicesBuffer(GLuint indices[], int data_size){
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil
+	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil -- to be seen if any trouble caused
 
 	VBO.push_back(vbo);
 }
-
 
 RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
 	GLuint vao;
@@ -301,8 +303,7 @@ RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], 
 
 	VAO.push_back(vao);
 
-	//TODO: NOTE: vao memory tracking not currently implemented. Once many are made, they must be deleted when done.
-	return RawModel(vao, indices, indices_length); // An Okay Constructor?
+	return RawModel(vao, indices, indices_length);
 }
 
 void render(RawModel model){
@@ -313,7 +314,7 @@ void render(RawModel model){
 	glBindVertexArray(0);
 }
 
-//for debug -- raw data
+// for debug -- raw data
 // An array of 4 vectors which represents 4 vertices to make a box
 GLfloat triangle[] = {
 	-0.5f, 0.5f, 0.0f,
@@ -322,6 +323,7 @@ GLfloat triangle[] = {
 	0.5f, 0.5f, 0.0f
 };
 
+// An array of 6 indices to indicate the drawing of the vertices
 GLuint indices[] = {
 	0, 1, 3,
 	3, 1, 2
@@ -338,11 +340,11 @@ int main() {
 	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, 0.0f, -10.0f)); //Camera's position
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
-	//create data
+	//create RawModel based on vertex and index data
 	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
 
 	while (!glfwWindowShouldClose(window)) {
-		// wipe the drawing surface clear
+		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
 		glPointSize(point_size);
@@ -363,12 +365,12 @@ int main() {
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
-		//DRAW HERE
+		// Rendering. TODO: foreach loop of RawModels in scene
 		render(triModel);
 
-		// update other events like input handling
+		// Update other events like input handling
 		glfwPollEvents();
-		// put the stuff we've been drawing onto the display
+		// Put the stuff we've been drawing onto the display
 		glfwSwapBuffers(window);
 	}
 

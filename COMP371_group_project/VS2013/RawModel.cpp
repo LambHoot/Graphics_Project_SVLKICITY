@@ -13,8 +13,6 @@ RawModel::~RawModel()
 
 }
 
-
-
 GLuint RawModel::getVAOID(){
 	return vaoID;
 }
