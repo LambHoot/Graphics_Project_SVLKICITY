@@ -278,18 +278,16 @@ void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
 	VBO.push_back(vbo);
-
-	//TODO: NOTE: vbo memory tracking not currently implemented. Once many are made, they must be deleted when done.
 }
 
 void bindIndicesBuffer(GLuint indices[], int data_size){
 	GLuint vbo;
-	glGenBuffers(0, &vbo);
-	VBO.push_back(vbo);
-
+	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_STATIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0); ??
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil
+
+	VBO.push_back(vbo);
 }
 
 
@@ -310,7 +308,7 @@ RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], 
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
-	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, model.getIndices());
+	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, (void*)0);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
@@ -318,9 +316,9 @@ void render(RawModel model){
 //for debug -- raw data
 // An array of 4 vectors which represents 4 vertices to make a box
 GLfloat triangle[] = {
-	-0.5f, 0.5f, 0,
-	-0.5f, -0.5f, 0,
-	0.5f, -0.5f, 0,
+	-0.5f, 0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,
+	0.5f, -0.5f, 0.0f,
 	0.5f, 0.5f, 0.0f
 };
 
