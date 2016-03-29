@@ -57,7 +57,7 @@ RawModel Loader::loadToVAO(vector <glm::vec3> positions, vector<glm::vec3> indic
 		ind[3 * j + 2] = indices[j].z;
 	}
 
-	return loadToVAO(pos, positions.size(), ind, indices.size());
+	return loadToVAO(pos, positions.size() * point_size, ind, indices.size() * point_size);
 }
 
 RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
