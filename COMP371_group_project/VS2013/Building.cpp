@@ -61,5 +61,10 @@ void Building::build(){
 }
 
 void Building::sendToPosition(){
-	//TODO translate a point by another point
+	for (unsigned int i = 0; i < positions.size(); i++) {
+		positions[i].x += position.x;
+		positions[i].y += position.y;
+		positions[i].z += position.z;
+	}
+	
 }
