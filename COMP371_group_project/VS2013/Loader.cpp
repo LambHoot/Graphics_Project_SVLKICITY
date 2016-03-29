@@ -41,6 +41,25 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 	VBO.push_back(vbo);
 }
 
+RawModel Loader::loadToVAO(vector <glm::vec3> positions, vector<glm::vec3> indices) {
+	GLfloat *pos = new GLfloat[positions.size() * 3];
+	GLuint *ind = new GLuint[indices.size() * 3];
+
+	for (unsigned int i = 0; i < positions.size(); i++){
+		pos[3 * i + 0] = positions[i].x;
+		pos[3 * i + 1] = positions[i].y;
+		pos[3 * i + 2] = positions[i].z;
+	}
+
+	for (unsigned int j = 0; j < indices.size(); j++){
+		ind[3 * j + 0] = indices[j].x;
+		ind[3 * j + 1] = indices[j].y;
+		ind[3 * j + 2] = indices[j].z;
+	}
+
+	return loadToVAO(pos, positions.size(), ind, indices.size());
+}
+
 RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
