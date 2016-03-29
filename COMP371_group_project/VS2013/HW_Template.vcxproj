@@ -73,6 +73,7 @@
   <ItemGroup>
     <ClCompile Include="..\Source\main.cpp" />
     <ClCompile Include="Building.cpp" />
+    <ClCompile Include="Loader.cpp" />
     <ClCompile Include="RawModel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Building.h" />
+    <ClInclude Include="Loader.h" />
     <ClInclude Include="RawModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

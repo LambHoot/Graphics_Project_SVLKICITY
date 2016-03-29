@@ -1,3 +1,5 @@
+#pragma once
+
 #include "glew.h"		// include GL Extension Wrangler
 #include "glfw3.h"  // include GLFW helper library
 #include "glm.hpp"

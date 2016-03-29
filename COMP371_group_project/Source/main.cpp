@@ -19,6 +19,7 @@
 
 // Custom Defined headers
 #include "../VS2013/RawModel.h"
+#include "../VS2013/Loader.h"
 
 using namespace std;
 
@@ -143,30 +144,6 @@ bool initialize() {
 vector<GLuint> VAO, VBO;
 GLuint EBO; //still unused
 
-bool cleanUp() {
-	glDisableVertexAttribArray(0);
-	//Properly de-allocate all resources once they've outlived their purpose
-
-	GLuint *vao, *vbo;
-	for (int i = 0; i < VAO.size(); i++){
-		vao = &VAO[i];
-		cout << "Deleting VAO id = " << vao << endl;
-		glDeleteVertexArrays(1,vao);
-	}
-	for (int i = 0; i < VBO.size(); i++){
-		vbo = &VBO[i];
-		cout << "Deleting VBO id = " << vbo << endl;
-		glDeleteBuffers(1, vbo);
-	}
-	
-	glDeleteBuffers(1, &EBO);
-
-	// Close GL context and any other GLFW resources
-	glfwTerminate();
-
-	return true;
-}
-
 GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_path)	{
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -264,48 +241,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
-void storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(attNumber);
-	glVertexAttribPointer(
-		attNumber,
-		3,                  // 3 for 3D
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // Distance between vertices in array
-		(void*)0            // array buffer offset
-		);
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-	VBO.push_back(vbo);
-}
-
-void bindIndicesBuffer(GLuint indices[], int data_size){
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil -- to be seen if any trouble caused
-
-	VBO.push_back(vbo);
-}
-
-RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
-	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
-	glBindVertexArray(0);
-
-	VAO.push_back(vao);
-
-	return RawModel(vao, indices, indices_length);
-}
-
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
@@ -341,7 +276,7 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
-	RawModel triModel = loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
+	RawModel triModel = Loader::loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
 
 	while (!glfwWindowShouldClose(window)) {
 		// Clear Screen with color
@@ -374,6 +309,6 @@ int main() {
 		glfwSwapBuffers(window);
 	}
 
-	cleanUp();
+	Loader::cleanUp();
 	return 0;
 }
