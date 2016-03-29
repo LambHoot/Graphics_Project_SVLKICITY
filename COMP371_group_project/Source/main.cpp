@@ -57,7 +57,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 // Movement variables
 float translateSensitivityX = 0.005f;
 float translateSensitivityY = 0.005f;
-float isPressedy = 0.0f;
+float isPressedz = 0.0f;
 float isPressedx = 0.0f;
 void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
@@ -84,18 +84,18 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		break;
 	case GLFW_KEY_UP:
 		if (action == GLFW_PRESS){
-			isPressedy = translateSensitivityY;
+			isPressedz = translateSensitivityY;
 		}
 		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
+			isPressedz = 0.0f;
 		}
 		break;
 	case GLFW_KEY_DOWN:
 		if (action == GLFW_PRESS){
-			isPressedy = -translateSensitivityY;
+			isPressedz = -translateSensitivityY;
 		}
 		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
+			isPressedz = 0.0f;
 		}
 		break;
 	default: break;
@@ -269,7 +269,7 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, 0.0f, -10.0f)); //Camera's position
+	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, -1.0f, -10.0f)); //Camera's position
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
@@ -282,13 +282,9 @@ int main() {
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
 		glPointSize(point_size);
 
-		//translating camera on the x and y axis
-		/*if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
-			view_matrix = glm::translate(view_matrix, glm::vec3(isPressedx, -isPressedy, 0.0f));
-		}*/
-
-		if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
-			model_matrix = glm::rotate(model_matrix, 0.01f, glm::vec3(isPressedx, isPressedy, 0.0f));
+		// Camera Movement on the X and Z axis
+		if ((isPressedz != 0.0f) || (isPressedx != 0.0f)){
+			view_matrix = glm::translate(view_matrix, glm::vec3(isPressedx, 0.0f, isPressedz));
 		}
 
 		glUseProgram(shader_program);
