@@ -59,8 +59,8 @@ float translateSensitivityZ = 0.005f;
 float isPressedz = 0.0f;
 float isPressedx = 0.0f;
 
-glm::vec3 position = glm::vec3(0, 0, 5);
-glm::vec3 direction;
+glm::vec3 position = glm::vec3(0.0f, -1.0f, -10.0f);
+glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 vRight;
 float horizontalAngle = 3.14f;
 float verticalAngle = 0.0f;
@@ -281,13 +281,15 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, -1.0f, -10.0f)); //Camera's position
+	//view_matrix = glm::translate(view_matrix, position); //Camera's position
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
 	RawModel triModel = Loader::loadToVAO(triangle, indices);
+	cout << horizontalAngle << " " << verticalAngle << endl;
 
 	while (!glfwWindowShouldClose(window)) {
+		//cout << xpos << " " << ypos << endl;
 		//Compute change in time
 		currentTime = glfwGetTime();
 		deltaTime = float(currentTime - lastTime);
@@ -297,8 +299,10 @@ int main() {
 		//Reset mouse position
 		glfwSetCursorPos(window, WIDTH/2, HEIGHT/2);
 		//Compute orientation
-		horizontalAngle += deltaTime * float(WIDTH / 2 - xpos);
-		verticalAngle += deltaTime * float(HEIGHT / 2 - ypos);
+		horizontalAngle += deltaTime * float((WIDTH / 2) - xpos);
+		verticalAngle += deltaTime * float((HEIGHT / 2) - ypos);
+
+		//cout << horizontalAngle << " " << verticalAngle << endl;
 
 		//Compute Directional Vector
 		direction = glm::vec3(
@@ -315,7 +319,7 @@ int main() {
 		glm::vec3 up = glm::cross(vRight, direction);
 
 		//Adjusting the view matrix
-		//view_matrix = glm::lookAt(position, position + direction, up);
+		view_matrix = glm::lookAt(position, position + direction, up);
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
