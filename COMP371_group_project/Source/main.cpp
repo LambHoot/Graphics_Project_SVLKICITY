@@ -248,21 +248,21 @@ void render(RawModel model){
 
 // for debug -- raw data
 // An array of 4 vectors which represents 4 vertices to make a box
-GLfloat triangle[] = {
-	-0.5f, 0.5f, 0.0f,
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.5f, 0.5f, 0.0f
+vector<glm::vec3> triangle = {
+	glm::vec3(-0.5f, 0.5f, 0.0f),
+	glm::vec3(-0.5f, -0.5f, 0.0f),
+	glm::vec3(0.5f, -0.5f, 0.0f),
+	glm::vec3(0.5f, 0.5f, 0.0f)
 };
 
 // An array of 6 indices to indicate the drawing of the vertices
-GLuint indices[] = {
-	0, 1, 3,
-	1, 2, 3
+
+vector<glm::vec3> indices = {
+	glm::vec3(0, 1, 3),
+	glm::vec3(3, 1, 2)
 };
 
 int main() {
-
 	initialize();
 
 	///Load the shaders
@@ -273,8 +273,8 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
-	//RawModel triModel = Loader::loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
-	Building building = Building(5.0f, 1.0f);
+	RawModel triModel = Loader::loadToVAO(triangle, indices);
+
 
 	while (!glfwWindowShouldClose(window)) {
 		// Clear Screen with color
