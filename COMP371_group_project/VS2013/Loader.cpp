@@ -51,7 +51,7 @@ RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint ind
 
 	VAO.push_back(vao);
 
-	return RawModel(vao, indices, indices_length);
+	return RawModel(vao, indices_length);
 }
 
 bool Loader::cleanUp() {
@@ -59,12 +59,12 @@ bool Loader::cleanUp() {
 	//Properly de-allocate all resources once they've outlived their purpose
 
 	GLuint *vao, *vbo;
-	for (int i = 0; i < VAO.size(); i++){
+	for (unsigned int i = 0; i < VAO.size(); i++){
 		vao = &VAO[i];
 		cout << "Deleting VAO id = " << vao << endl;
 		glDeleteVertexArrays(1, vao);
 	}
-	for (int i = 0; i < VBO.size(); i++){
+	for (unsigned int i = 0; i < VBO.size(); i++){
 		vbo = &VBO[i];
 		cout << "Deleting VBO id = " << vbo << endl;
 		glDeleteBuffers(1, vbo);

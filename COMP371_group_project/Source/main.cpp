@@ -140,10 +140,6 @@ bool initialize() {
 	return true;
 }
 
-//Used for Memory tracking
-vector<GLuint> VAO, VBO;
-GLuint EBO; //still unused
-
 GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_path)	{
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
