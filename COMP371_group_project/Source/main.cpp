@@ -20,6 +20,7 @@
 // Custom Defined headers
 #include "../VS2013/RawModel.h"
 #include "../VS2013/Loader.h"
+#include "../VS2013/Building.h"
 
 using namespace std;
 
@@ -257,7 +258,7 @@ GLfloat triangle[] = {
 // An array of 6 indices to indicate the drawing of the vertices
 GLuint indices[] = {
 	0, 1, 3,
-	3, 1, 2
+	1, 2, 3
 };
 
 int main() {
@@ -272,7 +273,8 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
-	RawModel triModel = Loader::loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
+	//RawModel triModel = Loader::loadToVAO(triangle, sizeof(triangle) / sizeof(*triangle), indices, sizeof(indices)/sizeof(*indices));
+	Building building = Building(5.0f, 1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 		// Clear Screen with color
@@ -297,7 +299,7 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
-		render(triModel);
+		render(building);
 
 		// Update other events like input handling
 		glfwPollEvents();
