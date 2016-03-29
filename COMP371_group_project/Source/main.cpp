@@ -55,9 +55,18 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 
 // Movement variables
 float translateSensitivityX = 0.005f;
-float translateSensitivityY = 0.005f;
+float translateSensitivityZ = 0.005f;
 float isPressedz = 0.0f;
 float isPressedx = 0.0f;
+
+glm::vec3 position = glm::vec3(0, 0, 5);
+glm::vec3 direction;
+glm::vec3 vRight;
+float horizontalAngle = 3.14f;
+float verticalAngle = 0.0f;
+double xpos, ypos, currentTime, lastTime = 0;
+float deltaTime;
+
 void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
@@ -68,6 +77,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS){
 			isPressedx = translateSensitivityX;
+			position -= vRight * deltaTime * translateSensitivityX;
 		}
 		else if (action == GLFW_RELEASE) {
 			isPressedx = 0.0f;
@@ -76,6 +86,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS){
 			isPressedx = -translateSensitivityX;
+			position += vRight * deltaTime * translateSensitivityX;
 		}
 		else if (action == GLFW_RELEASE) {
 			isPressedx = 0.0f;
@@ -83,7 +94,8 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		break;
 	case GLFW_KEY_UP:
 		if (action == GLFW_PRESS){
-			isPressedz = translateSensitivityY;
+			isPressedz = translateSensitivityZ;
+			position += direction * deltaTime * translateSensitivityZ;
 		}
 		else if (action == GLFW_RELEASE) {
 			isPressedz = 0.0f;
@@ -91,7 +103,8 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		break;
 	case GLFW_KEY_DOWN:
 		if (action == GLFW_PRESS){
-			isPressedz = -translateSensitivityY;
+			isPressedz = -translateSensitivityZ;
+			position -= direction * deltaTime * translateSensitivityZ;
 		}
 		else if (action == GLFW_RELEASE) {
 			isPressedz = 0.0f;
@@ -260,6 +273,7 @@ vector<glm::vec3> indices = {
 	glm::vec3(3, 1, 2)
 };
 
+
 int main() {
 	initialize();
 
@@ -274,6 +288,35 @@ int main() {
 	RawModel triModel = Loader::loadToVAO(triangle, indices);
 
 	while (!glfwWindowShouldClose(window)) {
+		//Compute change in time
+		currentTime = glfwGetTime();
+		deltaTime = float(currentTime - lastTime);
+		lastTime = currentTime;
+		//Mouse movement
+		glfwGetCursorPos(window, &xpos, &ypos);
+		//Reset mouse position
+		glfwSetCursorPos(window, WIDTH/2, HEIGHT/2);
+		//Compute orientation
+		horizontalAngle += deltaTime * float(WIDTH / 2 - xpos);
+		verticalAngle += deltaTime * float(HEIGHT / 2 - ypos);
+
+		//Compute Directional Vector
+		direction = glm::vec3(
+			cos(verticalAngle) * sin(horizontalAngle),
+			sin(verticalAngle),
+			cos(verticalAngle) * cos(horizontalAngle)
+			);
+		
+		//Compute orientation vectors
+		vRight = glm::vec3(
+			sin(horizontalAngle - 3.14f / 2.0f),
+			0,
+			cos(horizontalAngle - 3.14f / 2.0f));
+		glm::vec3 up = glm::cross(vRight, direction);
+
+		//Adjusting the view matrix
+		//view_matrix = glm::lookAt(position, position + direction, up);
+
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
