@@ -19,11 +19,14 @@ class Building : public RawModel
 private:
 	float height;
 	float width;
+	glm::vec3 position;
 
 	void build();
-
+	void sendToPosition();
+	void bindToModel();
 
 public:
+	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
 	~Building();
 
