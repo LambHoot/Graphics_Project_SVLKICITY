@@ -41,6 +41,9 @@
     <ClCompile Include="Loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Building.h">
@@ -50,6 +53,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CImg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
