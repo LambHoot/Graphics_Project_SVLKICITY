@@ -12,6 +12,41 @@ Loader::~Loader()
 {
 }
 
+vector < glm::vec3> Loader::generateNormals(vector<glm::vec3> vertices, vector<glm::vec3> indices){
+	vector<glm::vec3> normals;
+	vector<glm::vec3> shared;
+	vector<glm::vec3> triangleNormals;
+
+	// generate triangle normals in same order as indices
+	for (unsigned int x = 0; x < indices.size(); x++) {
+		glm::vec3 e1 = vertices[indices[x].y] - vertices[indices[x].x];
+		glm::vec3 e2 = vertices[indices[x].z] - vertices[indices[x].x];
+
+		triangleNormals.push_back(glm::normalize(glm::cross(e1, e2)));
+	}
+
+	//For every vertex
+	for (unsigned int i = 0; i < vertices.size(); i++){
+		shared.clear();
+		glm::vec3 norm = { 0, 0, 0 };
+
+		// Find all Shared Normals
+		for (unsigned int j = 0; j < indices.size(); j++) {
+			if (indices[j].x == i || indices[j].y == i || indices[j].z == i){
+				shared.push_back(triangleNormals[j]);
+			}
+		}
+		
+		// Add all shared normals
+		for (glm::vec3 s : shared){
+			norm += s;
+		}
+		normals.push_back(glm::normalize(norm));
+	}
+
+	return normals;
+}
+
 void Loader::bindIndicesBuffer(GLuint indices[], int data_size){
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
@@ -20,6 +55,27 @@ void Loader::bindIndicesBuffer(GLuint indices[], int data_size){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil -- to be seen if any trouble caused
 
 	VBO.push_back(vbo);
+}
+
+//TODO: Potentially refactor to involve func: storeDataInAttribList
+void bindNormalsBuffer(vector < glm::vec3> normals) {
+	GLuint normalbuffer;
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+	//Also added on
+	// 3rd attribute buffer : normals
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glVertexAttribPointer(
+		2,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+		);
 }
 
 void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size){

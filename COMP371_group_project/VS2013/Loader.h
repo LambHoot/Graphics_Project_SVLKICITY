@@ -14,6 +14,8 @@ private:
 	static RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length);
 	static void storeDataInAttribList(int attNumber, GLfloat list[], int data_size);
 	static void bindIndicesBuffer(GLuint indices[], int data_size);
+
+	static vector<glm::vec3> generateNormals(vector<glm::vec3> vertices, vector<glm::vec3> indices);
 	
 public:
 	Loader();
