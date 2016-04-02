@@ -21,6 +21,7 @@
 #include "../VS2013/RawModel.h"
 #include "../VS2013/Loader.h"
 #include "../VS2013/Building.h"
+#include "../VS2013/World.h"
 
 using namespace std;
 
@@ -54,7 +55,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-glm::vec3 cameraPosition = glm::vec3(0, 0, -10);
+glm::vec3 cameraPosition = glm::vec3(0, 1, -10);
 glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
@@ -65,6 +66,11 @@ double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
 
+void loadTexture(){
+
+
+
+}
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
@@ -270,6 +276,9 @@ int main() {
 
 	//create RawModel based on vertex and index data
 	Building building = Building(5.0f, 1.0f);
+	World world = World();
+
+	//glm::vec3 
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
@@ -282,8 +291,8 @@ int main() {
 		//Determine cursor cameraPosition and angle
 		glfwGetCursorPos(window, &xpos, &ypos);
 		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
-		horizontalAngle += deltaTime * (float((WIDTH / 2) - xpos));
-		verticleAngle += deltaTime * (float((HEIGHT / 2) - ypos));
+		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
 
 		//Incrementing cameraPosition
 		if (upKey){
@@ -330,6 +339,7 @@ int main() {
 
 		// Rendering. TODO: foreach loop of RawModels in scene
 		render(building);
+		render(world);
 
 		// Update other events like input handling
 		glfwPollEvents();
