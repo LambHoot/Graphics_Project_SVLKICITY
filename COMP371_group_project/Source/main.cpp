@@ -20,6 +20,7 @@
 // Custom Defined headers
 #include "../VS2013/RawModel.h"
 #include "../VS2013/Loader.h"
+#include "../VS2013/Building.h"
 
 using namespace std;
 
@@ -257,21 +258,6 @@ void render(RawModel model){
 	glBindVertexArray(0);
 }
 
-// for debug -- raw data
-// An array of 4 vectors which represents 4 vertices to make a box
-vector<glm::vec3> triangle = {
-	glm::vec3(-0.5f, 0.5f, 0.0f),
-	glm::vec3(-0.5f, -0.5f, 0.0f),
-	glm::vec3(0.5f, -0.5f, 0.0f),
-	glm::vec3(0.5f, 0.5f, 0.0f)
-};
-
-// An array of 6 indices to indicate the drawing of the vertices
-vector<glm::vec3> indices = {
-	glm::vec3(0, 1, 3),
-	glm::vec3(3, 1, 2)
-};
-
 int main() {
 	initialize();
 
@@ -283,7 +269,7 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
-	RawModel triModel = Loader::loadToVAO(triangle, indices);
+	Building building = Building(5.0f, 1.0f);
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	while (!glfwWindowShouldClose(window)) {
@@ -342,7 +328,7 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
-		render(triModel);
+		render(building);
 
 		// Update other events like input handling
 		glfwPollEvents();
