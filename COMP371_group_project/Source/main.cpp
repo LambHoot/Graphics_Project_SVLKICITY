@@ -74,14 +74,14 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 		break;
-	case GLFW_KEY_LEFT:
+	case GLFW_KEY_A:
 		if (action == GLFW_PRESS){
 			leftKey = true;
 		}
 		else if (action == GLFW_RELEASE){
 			leftKey = false;
 		}
-	case GLFW_KEY_RIGHT:
+	case GLFW_KEY_D:
 		if (action == GLFW_PRESS){
 			rightKey = true;
 		}
@@ -89,7 +89,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			rightKey = false;
 		}
 		break;
-	case GLFW_KEY_UP:
+	case GLFW_KEY_W:
 		if (action == GLFW_PRESS){
 			upKey = true;
 		}
@@ -97,7 +97,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			upKey = false;
 		}
 		break;
-	case GLFW_KEY_DOWN:
+	case GLFW_KEY_S:
 		if (action == GLFW_PRESS){
 			downKey = true;
 		}
@@ -315,11 +315,13 @@ int main() {
 				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
-		else if (leftKey){
-			cameraPosition += Vright * deltaTime * speed;
+
+		//up/down and left/right should be able to happen concurrently (diagonal movement)
+		if (leftKey){
+			cameraPosition -= Vright * deltaTime * speed;
 		}
 		else if (rightKey){
-			cameraPosition -= Vright * deltaTime * speed;
+			cameraPosition += Vright * deltaTime * speed;
 		}
 
 		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
