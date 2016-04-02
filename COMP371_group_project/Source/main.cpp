@@ -272,6 +272,7 @@ int main() {
 	Building building = Building(5.0f, 1.0f);
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+	noclip = false;
 	while (!glfwWindowShouldClose(window)) {
 
 		//Getting Time data
@@ -286,26 +287,26 @@ int main() {
 
 		//Incrementing cameraPosition
 		if (upKey){
-			if (!noclip){
+			if (noclip){
 				cameraPosition += direction * deltaTime * speed;
 			}
-			else if (noclip){
+			else if (!noclip){
 				cameraPosition += glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
 		else if (downKey){
-			if (!noclip){
+			if (noclip){
 				cameraPosition -= direction * deltaTime * speed;
 			}
-			else if (noclip){
+			else if (!noclip){
 				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
-		else if (leftKey){
-			cameraPosition += Vright * deltaTime * speed;
+		if (leftKey){
+			cameraPosition -= Vright * deltaTime * speed;
 		}
 		else if (rightKey){
-			cameraPosition -= Vright * deltaTime * speed;
+			cameraPosition += Vright * deltaTime * speed;
 		}
 
 		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
