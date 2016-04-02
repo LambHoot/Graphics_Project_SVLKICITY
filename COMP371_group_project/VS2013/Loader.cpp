@@ -66,6 +66,12 @@ RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint ind
 	glBindVertexArray(vao);
 	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
 	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
+	
+
+	// TexCoord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
 	glBindVertexArray(0);
 
 	VAO.push_back(vao);

@@ -1,5 +1,7 @@
 #version 130
 
+//layout (location = 2) in vec2 texCoord;
+
 uniform mat4 view_matrix, model_matrix, proj_matrix;
 
 in  vec3 in_Position;		//vertex position
