@@ -37,5 +37,5 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 void World::bindToModel() {
 	RawModel temp = Loader::loadToVAO(Worldpositions, Worldindices);
 	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	this->elementCount = temp.getelementCount();
 }

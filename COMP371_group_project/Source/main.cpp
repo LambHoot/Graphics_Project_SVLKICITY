@@ -263,10 +263,50 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
+void trackMovement(){
+	//Getting Time data
+	currentTime = glfwGetTime();
+	deltaTime = float(currentTime - lastTime);
+
+	//Determine cursor cameraPosition and angle
+	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+	horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+	verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+
+	//Incrementing cameraPosition
+	if (upKey){
+		if (noclip){
+			cameraPosition += direction * deltaTime * speed;
+		}
+		else if (!noclip){
+			cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
+		}
+	}
+	else if (downKey){
+		if (noclip){
+			cameraPosition -= direction * deltaTime * speed;
+		}
+		else if (!noclip){
+			cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
+		}
+	}
+	if (leftKey){
+		cameraPosition -= Vright * deltaTime * speed;
+	}
+	else if (rightKey){
+		cameraPosition += Vright * deltaTime * speed;
+	}
+
+	direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+	Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+	up = cross(Vright, direction);
+}
+
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
-	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, model.getelementCount(), GL_UNSIGNED_INT, (void*)0);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
@@ -303,9 +343,7 @@ int main() {
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		streetList.push_back(s);
-	}
-
-	
+	}	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
@@ -314,46 +352,9 @@ int main() {
 		glUniform1i(drawType_id, 0);
 		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
-		//Getting Time data
-		currentTime = glfwGetTime();
-		deltaTime = float(currentTime - lastTime);
-
-		//Determine cursor cameraPosition and angle
-		glfwGetCursorPos(window, &xpos, &ypos);
-		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
-		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
-
-		//Incrementing cameraPosition
-		if (upKey){
-			if (noclip){
-				cameraPosition += direction * deltaTime * speed;
-			}
-			else if (!noclip){
-				cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
-			}
-		}
-		else if (downKey){
-			if (noclip){
-				cameraPosition -= direction * deltaTime * speed;
-			}
-			else if (!noclip){
-				cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
-			}
-		}
-		if (leftKey){
-			cameraPosition -= Vright * deltaTime * speed;
-		}
-		else if (rightKey){
-			cameraPosition += Vright * deltaTime * speed;
-		}
-
-		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
-		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
-		up = cross(Vright, direction);
+		trackMovement();
 
 		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
-
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -370,8 +371,8 @@ int main() {
 		// Rendering. TODO: foreach loop of RawModels in scene
 		render(building);
 		render(world);
-		glUniform1i(drawType_id, 1);
-		//render(street);
+		//glUniform1i(drawType_id, 1);
+		render(street);
 
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);

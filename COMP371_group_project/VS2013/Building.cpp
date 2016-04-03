@@ -11,7 +11,7 @@ Building::Building(float h, float w) : Building(h, w, vec3(0,0,0))
 {
 }
 
-Building::Building(float h, float w, vec3 position)
+Building::Building(float h, float w, vec3 position) : RawModel()
 {
 	this->height = h;
 	this->width = w;
@@ -28,9 +28,10 @@ Building::~Building()
 }
 
 void Building::bindToModel() {
-	RawModel temp = Loader::loadToVAO(positions, indices);
-	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	glBindVertexArray(vaoID);
+	loadVertices(positions);
+	loadIndices(indices);
+	glBindVertexArray(0);
 }
 
 void Building::build(){

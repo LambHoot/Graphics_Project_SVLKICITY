@@ -13,19 +13,33 @@ Loader::~Loader()
 {
 }
 
-void Loader::bindIndicesBuffer(GLuint indices[], int data_size){
+GLuint Loader::createNewVAO(){
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	VAO.push_back(vao);
+
+	return vao;
+}
+
+GLuint Loader::createNewVBO(){
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
+	VBO.push_back(vbo);
+
+	return vbo;
+}
+
+void Loader::bindIndicesBuffer(GLuint indices[], int data_size){
+	GLuint vbo = createNewVBO();
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);// added by phil -- to be seen if any trouble caused
-
-	VBO.push_back(vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size){
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
+	GLuint vbo = createNewVBO();
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(attNumber);
@@ -38,8 +52,6 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 		(void*)0            // array buffer offset
 		);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	VBO.push_back(vbo);
 }
 
 RawModel Loader::loadToVAO(vector <vec3> positions, vector<vec3> indices) {
@@ -62,14 +74,16 @@ RawModel Loader::loadToVAO(vector <vec3> positions, vector<vec3> indices) {
 }
 
 RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
-	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
-	glBindVertexArray(0);
+	GLuint vao = createNewVAO();
 
-	VAO.push_back(vao);
+	glBindVertexArray(vao);
+
+	cout << sizeof(indices)*indices_length << endl;
+	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
+	cout << sizeof(positions)*positions_length << endl;
+	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
+	
+	glBindVertexArray(0);
 
 	return RawModel(vao, indices_length);
 }
