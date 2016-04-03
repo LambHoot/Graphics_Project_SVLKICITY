@@ -22,6 +22,7 @@
 #include "../VS2013/Loader.h"
 #include "../VS2013/Building.h"
 #include "../VS2013/World.h"
+#include "../VS2013/Street.h"
 
 using namespace std;
 
@@ -35,6 +36,9 @@ GLuint shader_program = 0;
 GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
+
+GLuint drawType_id = 0;
+GLuint camPos_id = 0;
 
 
 ///Transformations
@@ -60,7 +64,7 @@ glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 3.0f;
+float speed = 10.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
@@ -252,6 +256,8 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
+	drawType_id = glGetUniformLocation(ProgramID, "drawType");
+	camPos_id = glGetUniformLocation(ProgramID, "camPos");
 
 	return ProgramID;
 }
@@ -267,6 +273,8 @@ void render(RawModel model){
 int main() {
 	initialize();
 
+	bool swap = true;
+
 	///Load the shaders
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
@@ -275,14 +283,35 @@ int main() {
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
+	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
+	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/1000; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
+	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
-	World world = World();
+	World world = World(farLeftMain, bottomRightMain);
+	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
+	vector<Street> streetList;
 
-	//glm::vec3 
+	//Pushing x axis streets
+	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
+		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
+		streetList.push_back(s);
+	}
+	//Pushing z axis streets
+	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
+		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
+		streetList.push_back(s);
+	}
+
+	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
 	while (!glfwWindowShouldClose(window)) {
+		
+		glUniform1i(drawType_id, 0);
+		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 		//Getting Time data
 		currentTime = glfwGetTime();
@@ -340,6 +369,12 @@ int main() {
 		// Rendering. TODO: foreach loop of RawModels in scene
 		render(building);
 		render(world);
+		glUniform1i(drawType_id, 1);
+		//render(street);
+
+		for (int j = 0; j < streetList.size(); j++){
+			render(streetList[j]);
+		}
 
 		// Update other events like input handling
 		glfwPollEvents();
