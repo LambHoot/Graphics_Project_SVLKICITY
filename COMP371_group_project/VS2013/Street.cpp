@@ -29,7 +29,8 @@ void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
 }
 
 void Street::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Streetpositions, Streetindices);
-	this->vaoID = temp.getVAOID();
-	this->elementCount = temp.getelementCount();
+	glBindVertexArray(vaoID);
+	loadVertices(Streetpositions);
+	loadIndices(Streetindices);
+	glBindVertexArray(0);
 }

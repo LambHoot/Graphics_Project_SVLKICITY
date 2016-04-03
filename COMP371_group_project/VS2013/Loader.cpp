@@ -54,40 +54,6 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-RawModel Loader::loadToVAO(vector <vec3> positions, vector<vec3> indices) {
-	GLfloat *pos = new GLfloat[positions.size() * 3];
-	GLuint *ind = new GLuint[indices.size() * 3];
-
-	for (unsigned int i = 0; i < positions.size(); i++){
-		pos[3 * i + 0] = positions[i].x;
-		pos[3 * i + 1] = positions[i].y;
-		pos[3 * i + 2] = positions[i].z;
-	}
-
-	for (unsigned int j = 0; j < indices.size(); j++){
-		ind[3 * j + 0] = indices[j].x;
-		ind[3 * j + 1] = indices[j].y;
-		ind[3 * j + 2] = indices[j].z;
-	}
-
-	return loadToVAO(pos, positions.size() * point_size, ind, indices.size() * point_size);
-}
-
-RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length){
-	GLuint vao = createNewVAO();
-
-	glBindVertexArray(vao);
-
-	cout << sizeof(indices)*indices_length << endl;
-	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
-	cout << sizeof(positions)*positions_length << endl;
-	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
-	
-	glBindVertexArray(0);
-
-	return RawModel(vao, indices_length);
-}
-
 bool Loader::cleanUp() {
 	glDisableVertexAttribArray(0);
 	//Properly de-allocate all resources once they've outlived their purpose

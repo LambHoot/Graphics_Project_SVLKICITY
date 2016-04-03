@@ -11,9 +11,6 @@ static class Loader
 private:
 	static vector<GLuint> VAO, VBO;
 	static const int point_size = 3;
-
-	static RawModel loadToVAO(GLfloat positions[], int positions_length, GLuint indices[], int indices_length);
-
 public:
 	Loader();
 	~Loader();
@@ -24,7 +21,6 @@ public:
 	
 	static void bindIndicesBuffer(GLuint indices[], int data_size);
 
-	static RawModel loadToVAO(vector<vec3> positions, vector<vec3> indices);
 	static bool cleanUp();
 };
 
