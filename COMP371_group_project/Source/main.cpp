@@ -293,23 +293,29 @@ int main() {
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 	vector<Street> streetList;
 
+	vector<float> streetXList;
+	vector<float> streetZList;
+
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
 		streetList.push_back(s);
+		streetXList.push_back(bottomRightMain.z);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		streetList.push_back(s);
 	}
-
+	
 	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
 	while (!glfwWindowShouldClose(window)) {
 		
+		//cout << 0.0f - cameraPosition.x << " " << 0.0f - cameraPosition.y << " " << 0.0f - cameraPosition.z << endl;
+
 		glUniform1i(drawType_id, 0);
 		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
@@ -357,6 +363,7 @@ int main() {
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
