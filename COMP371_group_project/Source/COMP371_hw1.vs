@@ -20,10 +20,4 @@ void main () {
 	if(drawType == 2){// street WHITE
 		out_Color = vec3 (0.0f, 0.0f, 0.0f);
 	}
-
-	vec3 distanceFromCamToPos = in_Position - camPos;
-	float distance = distanceFromCamToPos.length();
-
-
-
 }
