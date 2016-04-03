@@ -11,11 +11,12 @@
 class RawModel
 {
 
-private: 
+protected: 
 	GLuint vaoID;
 	GLuint vertexCount;
 
 public:
+	RawModel();
 	RawModel(GLuint vaoID, GLuint vertexCount);
 	~RawModel();
 

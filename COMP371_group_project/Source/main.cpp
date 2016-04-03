@@ -20,6 +20,8 @@
 // Custom Defined headers
 #include "../VS2013/RawModel.h"
 #include "../VS2013/Loader.h"
+#include "../VS2013/Building.h"
+#include "../VS2013/World.h"
 
 using namespace std;
 
@@ -53,11 +55,25 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
+glm::vec3 cameraPosition = glm::vec3(0, 1, -10);
+glm::vec3 direction, Vright, up;
+float horizontalAngle = 0.0f;
+float verticleAngle = 0.0f;
+float initialFoV = 45.0f;
+float speed = 3.0f;
+int mouseSpeed = 1.0f;
+double xpos = 0, ypos = 0;
+double currentTime = 0, lastTime = 0;
+float deltaTime = 0.0f;
+
+void loadTexture(){
+
+
+
+}
+
 // Movement variables
-float translateSensitivityX = 0.005f;
-float translateSensitivityY = 0.005f;
-float isPressedz = 0.0f;
-float isPressedx = 0.0f;
+bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
 void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
@@ -67,36 +83,39 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		break;
 	case GLFW_KEY_LEFT:
 		if (action == GLFW_PRESS){
-			isPressedx = translateSensitivityX;
+			leftKey = true;
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedx = 0.0f;
+		else if (action == GLFW_RELEASE){
+			leftKey = false;
 		}
-		break;
 	case GLFW_KEY_RIGHT:
 		if (action == GLFW_PRESS){
-			isPressedx = -translateSensitivityX;
+			rightKey = true;
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedx = 0.0f;
+		else if (action == GLFW_RELEASE){
+			rightKey = false;
 		}
 		break;
 	case GLFW_KEY_UP:
 		if (action == GLFW_PRESS){
-			isPressedz = translateSensitivityY;
+			upKey = true;
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedz = 0.0f;
+		else if (action == GLFW_RELEASE){
+			upKey = false;
 		}
 		break;
 	case GLFW_KEY_DOWN:
 		if (action == GLFW_PRESS){
-			isPressedz = -translateSensitivityY;
+			downKey = true;
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedz = 0.0f;
+		else if (action == GLFW_RELEASE){
+			downKey = false;
 		}
 		break;
+	case GLFW_KEY_N:
+		if (action == GLFW_PRESS){
+			noclip = !noclip;
+		}
 	default: break;
 	}
 
@@ -209,7 +228,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 
-	glBindAttribLocation(ProgramID, 0, "in_Position");
+	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
 
 	//appearing in the vertex shader.
 	glBindAttribLocation(ProgramID, 1, "in_Color");
@@ -245,21 +264,6 @@ void render(RawModel model){
 	glBindVertexArray(0);
 }
 
-// for debug -- raw data
-// An array of 4 vectors which represents 4 vertices to make a box
-vector<glm::vec3> triangle = {
-	glm::vec3(-0.5f, 0.5f, 0.0f),
-	glm::vec3(-0.5f, -0.5f, 0.0f),
-	glm::vec3(0.5f, -0.5f, 0.0f),
-	glm::vec3(0.5f, 0.5f, 0.0f)
-};
-
-// An array of 6 indices to indicate the drawing of the vertices
-vector<glm::vec3> indices = {
-	glm::vec3(0, 1, 3),
-	glm::vec3(3, 1, 2)
-};
-
 int main() {
 	initialize();
 
@@ -267,22 +271,64 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = glm::translate(view_matrix, glm::vec3(0.0f, -1.0f, -10.0f)); //Camera's position
+	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
 	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
-	RawModel triModel = Loader::loadToVAO(triangle, indices);
+	Building building = Building(5.0f, 1.0f);
+	World world = World();
 
+	//glm::vec3 
+
+	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+	noclip = false;
 	while (!glfwWindowShouldClose(window)) {
+
+		//Getting Time data
+		currentTime = glfwGetTime();
+		deltaTime = float(currentTime - lastTime);
+
+		//Determine cursor cameraPosition and angle
+		glfwGetCursorPos(window, &xpos, &ypos);
+		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+
+		//Incrementing cameraPosition
+		if (upKey){
+			if (noclip){
+				cameraPosition += direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition += glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		else if (downKey){
+			if (noclip){
+				cameraPosition -= direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		if (leftKey){
+			cameraPosition -= Vright * deltaTime * speed;
+		}
+		else if (rightKey){
+			cameraPosition += Vright * deltaTime * speed;
+		}
+
+		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+		Vright = glm::vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+		up = glm::cross(Vright, direction);
+
+		view_matrix = glm::lookAt(cameraPosition, cameraPosition + direction, up);
+
+
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
 		glPointSize(point_size);
-
-		// Camera Movement on the X and Z axis
-		if ((isPressedz != 0.0f) || (isPressedx != 0.0f)){
-			view_matrix = glm::translate(view_matrix, glm::vec3(isPressedx, 0.0f, isPressedz));
-		}
 
 		glUseProgram(shader_program);
 
@@ -292,12 +338,16 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
-		render(triModel);
+		render(building);
+		render(world);
 
 		// Update other events like input handling
 		glfwPollEvents();
 		// Put the stuff we've been drawing onto the display
 		glfwSwapBuffers(window);
+
+		//Setting lastTime
+		lastTime = currentTime;
 	}
 
 	Loader::cleanUp();

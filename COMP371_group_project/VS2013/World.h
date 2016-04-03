@@ -8,27 +8,19 @@
 #include "gtc/type_ptr.hpp"
 #include "gtc/constants.hpp"
 #include <vector>
+#include "CImg.h"
 
+using namespace cimg_library;
 using namespace std;
 
 #include "RawModel.h"
 
-class Building : public RawModel
+class World : public RawModel
 {
-
-private:
-	float height;
-	float width;
-	glm::vec3 position;
-
-	void build();
-	void sendToPosition();
-	void bindToModel();
-
 public:
-	Building(float h, float w, glm::vec3 position);
-	Building(float h, float w);
-	~Building();
-
+	World();
+	~World();
+	void loadFloor();
+	void bindToModel();
 };
 

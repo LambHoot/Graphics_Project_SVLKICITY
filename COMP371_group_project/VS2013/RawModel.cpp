@@ -6,6 +6,10 @@ RawModel::RawModel(GLuint vaoID, GLuint vertexCount)
 	this->vertexCount = vertexCount;
 }
 
+RawModel::RawModel()
+{
+	//TODO: Should there be nothing here?
+}
 
 RawModel::~RawModel()
 {

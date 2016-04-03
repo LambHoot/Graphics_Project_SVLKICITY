@@ -75,6 +75,7 @@
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="RawModel.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\COMP371_hw1.fss" />
@@ -82,8 +83,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Building.h" />
+    <ClInclude Include="CImg.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="RawModel.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
