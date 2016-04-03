@@ -5,9 +5,9 @@ using namespace glm;
 
 vector<vec3> Worldpositions, Worldindices;
 
-World::World()
+World::World(glm::vec3 fl, glm::vec3 br)
 {
-	World::loadFloor();
+	World::loadFloor(fl, br);
 	World::bindToModel();
 }
 
@@ -16,25 +16,11 @@ World::~World()
 {
 }
 
-void World::loadFloor(){
-	/*
-	CImg<unsigned char>  floorImage(128, 128, 1, 3, 0);
-	int width = 128, height = 128;
-	floorImage.resize(width, height, 1);
-
-	for (int j = 0; j < height; j++){
-		for (int i = 0; i < width; i++){
-			floorImage.data[(j*width) + i] = (i < width / 16 || j < height / 16 ? 255 : 0);
-		}
-	}
-
-	glBindTexture(GL_TEXTURE_2D, floorImage);
-	*/
-	
-	vec3 farLeft = { -500.0f, 0.0f, 500.0f };
-	vec3 nearLeft = { -500.0f, 0.0f, -500.0f };
-	vec3 farRight = { 500.0f, 0.0f, 500.0f };
-	vec3 nearRight = { 500.0f, 0.0f, -500.0f };
+void World::loadFloor(glm::vec3 fl, glm::vec3 br){
+	glm::vec3 farLeft = { fl.x, 0.0f, fl.z };
+	glm::vec3 nearLeft = { fl.x, 0.0f, br.z };
+	glm::vec3 farRight = { br.x, 0.0f, fl.z };
+	glm::vec3 nearRight = { br.x, 0.0f, br.z };
 
 	Worldpositions = {
 		farLeft,

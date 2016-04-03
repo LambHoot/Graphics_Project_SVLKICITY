@@ -10,14 +10,17 @@
 #include <vector>
 #include "CImg.h"
 
+using namespace cimg_library;
+using namespace std;
+
 #include "RawModel.h"
 
-class World : public RawModel
+class Street : public RawModel
 {
 public:
-	World(glm::vec3 fl, glm::vec3 br);
-	~World();
-	void loadFloor(glm::vec3 fl, glm::vec3 br);
+	Street(glm::vec3 topLeft, glm::vec3 bottomRight);
+	~Street();
+	void loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight);
 	void bindToModel();
 };
 
