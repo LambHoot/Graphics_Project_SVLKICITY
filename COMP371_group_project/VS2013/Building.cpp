@@ -6,14 +6,20 @@ using namespace std;
 
 vector<glm::vec3> positions, indices;
 //Constructors
-Building::Building(float h, float w) : Building(h, w, glm::vec3(0,0,0))
+
+
+Building::Building(float h, float w) : Building(h, w, w, glm::vec3(0,0,0))
 {
 }
 
-Building::Building(float h, float w, glm::vec3 position)
+Building::Building(float h, float w, glm::vec3 position) : Building(h, w, w, position)
 {
+}
+
+Building::Building(float h, float w, float d, glm::vec3 position){
 	this->height = h;
 	this->width = w;
+	this->depth = d;
 	this->position = position;
 
 	Building::build();
@@ -34,15 +40,15 @@ void Building::bindToModel() {
 
 void Building::build(){
 	positions = { 
-				glm::vec3(-width / 2.0f, 0.0f, width / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, width / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, -width / 2.0f),
-				glm::vec3(-width / 2.0f, 0.0f, -width / 2.0f),
+				glm::vec3(-width / 2.0f, 0.0f, depth / 2.0f),
+				glm::vec3(width / 2.0f, 0.0f, depth / 2.0f),
+				glm::vec3(width / 2.0f, 0.0f, -depth / 2.0f),
+				glm::vec3(-width / 2.0f, 0.0f, -depth / 2.0f),
 
-				glm::vec3(-width / 2.0f, height, width / 2.0f),
-				glm::vec3(width / 2.0f, height, width / 2.0f),
-				glm::vec3(width / 2.0f, height, -width / 2.0f),
-				glm::vec3(-width / 2.0f, height, -width / 2.0f) };
+				glm::vec3(-width / 2.0f, height, depth / 2.0f),
+				glm::vec3(width / 2.0f, height, depth / 2.0f),
+				glm::vec3(width / 2.0f, height, -depth / 2.0f),
+				glm::vec3(-width / 2.0f, height, -depth / 2.0f) };
 
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
@@ -67,4 +73,31 @@ void Building::sendToPosition(){
 		positions[i].z += position.z;
 	}
 	
+}
+
+Building Building::generateRandomBuilding(glm::vec3 position, float max){
+	float lowSize = max/20.0f;
+	float highSize = max/5.0f;
+	float width = lowSize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highSize - lowSize)));
+	float depth = lowSize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highSize - lowSize)));
+	float heightFactor = glm::length((position)/50.0f);
+	heightFactor = (1.0f / heightFactor)*2.0f;
+	float lowHeight = max/10.0f;
+	float highHeight = (max / 5.0f)*heightFactor;
+	float height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	Building bb = Building(height, width, depth, position);
+	return bb;
+}
+
+bool Building::checkIfConflict(Building build, vector<Building> buildList){
+	for (int bl = 0; bl < buildList.size(); bl++){
+		glm::vec3 b1tl = { build.position.x - build.width / 2.0f, build.position.y, build.position.z + build.depth / 2.0f };
+		glm::vec3 b1br = { build.position.x + build.width / 2.0f, build.position.y, build.position.z - build.depth / 2.0f };
+		glm::vec3 b2tl = { buildList[bl].position.x - buildList[bl].width / 2.0f, buildList[bl].position.y, buildList[bl].position.z + buildList[bl].depth / 2.0f };
+		glm::vec3 b2br = { buildList[bl].position.x + buildList[bl].width / 2.0f, buildList[bl].position.y, buildList[bl].position.z - buildList[bl].depth / 2.0f };
+		if (((b1tl.x <= b2tl.x) && (b2tl.x <= b1br.x)) && ((b1tl.z <= b2tl.z) && (b2tl.z <= b1br.z))){
+			return false;
+		}
+	}
+	return true;
 }

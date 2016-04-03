@@ -280,13 +280,13 @@ int main() {
 
 	//Set the camera
 	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
-	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
+	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
 	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
-	float xOffset = (bottomRightMain.x - farLeftMain.x)/1000; // 1000 lanes exist with this width
-	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
 	World world = World(farLeftMain, bottomRightMain);
@@ -296,17 +296,55 @@ int main() {
 	vector<float> streetXList;
 	vector<float> streetZList;
 
+	vector<Building> buildingList;
+
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
 		streetList.push_back(s);
-		streetXList.push_back(bottomRightMain.z);
+		streetXList.push_back(i + xOffset);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		streetList.push_back(s);
+		streetZList.push_back(j + zOffset);
 	}
+	for (int x = 0; x < streetXList.size(); x++){
+		for (int z = 0; z < streetZList.size(); z++){
+			vector <Building> thisBlockBuildings;
+			for (int nb = 0; nb < 50; nb++){
+				//generate 20 buildings per block
+				float lowX = streetXList[x];
+				float highX = streetXList[x] + xOffset * 10.0f;
+				float lowZ = streetZList[z];
+				float highZ = streetZList[z] + zOffset * 10.0f;
+				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
+				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
+				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
+				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10);
+				if (nb==0){
+					thisBlockBuildings.push_back(b);
+					buildingList.push_back(b);
+				}
+				else{
+					bool safe = Building::checkIfConflict(b, thisBlockBuildings);
+					if (safe){
+						thisBlockBuildings.push_back(b);
+						buildingList.push_back(b);
+					}
+				}
+
+			}
+
+
+			//glm::vec3 blockPlacement = { streetXList[x], 0.0f, streetZList[z] };
+			//Building b = Building::generateRandomBuilding(blockPlacement, xOffset*10);
+			//buildingList.push_back(b);
+			//(streetXList[x], streetZList[z])->(streetXList[x] + xOffset*10, streetZList[z] + zOffset*10)
+		}
+	}
+
 	
 	
 
@@ -374,7 +412,11 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
-		render(building);
+		//render(building);
+		for (int k = 0; k < buildingList.size(); k++){
+			render(buildingList[k]);
+		}
+
 		render(world);
 		glUniform1i(drawType_id, 1);
 		//render(street);

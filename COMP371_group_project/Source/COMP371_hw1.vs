@@ -21,10 +21,10 @@ void main () {
 	if(drawType == 2){// street WHITE
 		out_Color = vec3 (0.0f, 0.0f, 0.0f);
 	}
-	/*
+	
 	//vec3 myCamPos = normalize(camPos);
 	//vec3 myIn_Position = normalize(in_Position);
-
+	/*
 	vec3 distanceFromCamToPos = in_Position - camPos;
 	distance = sqrt((distanceFromCamToPos.x * distanceFromCamToPos.x) + (distanceFromCamToPos.y * distanceFromCamToPos.y) + (distanceFromCamToPos.z * distanceFromCamToPos.z));
 
