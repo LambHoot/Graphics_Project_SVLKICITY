@@ -24,6 +24,7 @@
 #include "../VS2013/World.h"
 
 using namespace std;
+using namespace glm;
 
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
 #define DEG_TO_RAD	M_PI/180.0f
@@ -38,9 +39,9 @@ GLuint proj_matrix_id = 0;
 
 
 ///Transformations
-glm::mat4 proj_matrix;
-glm::mat4 view_matrix;
-glm::mat4 model_matrix;
+mat4 proj_matrix;
+mat4 view_matrix;
+mat4 model_matrix;
 
 // Given a 3D environment
 GLfloat point_size = 3.0f;
@@ -55,8 +56,8 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-glm::vec3 cameraPosition = glm::vec3(0, 1, -10);
-glm::vec3 direction, Vright, up;
+vec3 cameraPosition = vec3(0, 1, -10);
+vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
@@ -271,14 +272,14 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
-	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
+	view_matrix = translate(view_matrix, vec3(0, 0, -10)); //Camera's cameraPosition
+	proj_matrix = perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
 	Building building = Building(5.0f, 1.0f);
 	World world = World();
 
-	//glm::vec3 
+	//vec3 
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
@@ -300,7 +301,7 @@ int main() {
 				cameraPosition += direction * deltaTime * speed;
 			}
 			else if (!noclip){
-				cameraPosition += glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+				cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
 		else if (downKey){
@@ -308,7 +309,7 @@ int main() {
 				cameraPosition -= direction * deltaTime * speed;
 			}
 			else if (!noclip){
-				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+				cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
 		if (leftKey){
@@ -318,11 +319,11 @@ int main() {
 			cameraPosition += Vright * deltaTime * speed;
 		}
 
-		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
-		Vright = glm::vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
-		up = glm::cross(Vright, direction);
+		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+		up = cross(Vright, direction);
 
-		view_matrix = glm::lookAt(cameraPosition, cameraPosition + direction, up);
+		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
 
 
 		// Clear Screen with color
@@ -333,9 +334,9 @@ int main() {
 		glUseProgram(shader_program);
 
 		//Pass the values of the three matrices to the shaders
-		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, glm::value_ptr(proj_matrix));
-		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
-		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, value_ptr(proj_matrix));
+		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
+		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
 		render(building);
