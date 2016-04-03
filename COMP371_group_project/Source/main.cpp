@@ -65,17 +65,11 @@ vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 10.0f;
+float speed = 100.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
-
-void loadTexture(){
-
-
-
-}
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
@@ -263,6 +257,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
+//Probably to be extracted into player class or something
 void trackMovement(){
 	//Getting Time data
 	currentTime = glfwGetTime();
@@ -303,6 +298,8 @@ void trackMovement(){
 	up = cross(Vright, direction);
 }
 
+
+vector<RawModel> models;
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
@@ -323,6 +320,8 @@ int main() {
 	view_matrix = translate(view_matrix, vec3(0, 0, -10)); //Camera's cameraPosition
 	proj_matrix = perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
 
+	models.clear();
+
 	//create RawModel based on vertex and index data
 	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
@@ -332,17 +331,20 @@ int main() {
 	Building building = Building(5.0f, 1.0f);
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
-	vector<Street> streetList;
+
+	models.push_back(building);
+	models.push_back(world);
+	models.push_back(street);
 
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
-		streetList.push_back(s);
+		models.push_back(s);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
-		streetList.push_back(s);
+		models.push_back(s);
 	}	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
@@ -368,14 +370,9 @@ int main() {
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
-		// Rendering. TODO: foreach loop of RawModels in scene
-		render(building);
-		render(world);
-		//glUniform1i(drawType_id, 1);
-		render(street);
-
-		for (int j = 0; j < streetList.size(); j++){
-			render(streetList[j]);
+		glUniform1i(drawType_id, 0);
+		for (RawModel m : models){
+			render(m);
 		}
 
 		// Update other events like input handling
