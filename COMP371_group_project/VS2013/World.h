@@ -10,9 +10,6 @@
 #include <vector>
 #include "CImg.h"
 
-using namespace cimg_library;
-using namespace std;
-
 #include "RawModel.h"
 
 class World : public RawModel

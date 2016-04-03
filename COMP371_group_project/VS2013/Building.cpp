@@ -3,14 +3,15 @@
 
 //remove as not needed, just copied everything used in main
 using namespace std;
+using namespace glm;
 
-vector<glm::vec3> positions, indices;
+vector<vec3> positions, indices;
 //Constructors
-Building::Building(float h, float w) : Building(h, w, glm::vec3(0,0,0))
+Building::Building(float h, float w) : Building(h, w, vec3(0,0,0))
 {
 }
 
-Building::Building(float h, float w, glm::vec3 position)
+Building::Building(float h, float w, vec3 position)
 {
 	this->height = h;
 	this->width = w;
@@ -34,30 +35,30 @@ void Building::bindToModel() {
 
 void Building::build(){
 	positions = { 
-				glm::vec3(-width / 2.0f, 0.0f, width / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, width / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, -width / 2.0f),
-				glm::vec3(-width / 2.0f, 0.0f, -width / 2.0f),
+				vec3(-width / 2.0f, 0.0f, width / 2.0f),
+				vec3(width / 2.0f, 0.0f, width / 2.0f),
+				vec3(width / 2.0f, 0.0f, -width / 2.0f),
+				vec3(-width / 2.0f, 0.0f, -width / 2.0f),
 
-				glm::vec3(-width / 2.0f, height, width / 2.0f),
-				glm::vec3(width / 2.0f, height, width / 2.0f),
-				glm::vec3(width / 2.0f, height, -width / 2.0f),
-				glm::vec3(-width / 2.0f, height, -width / 2.0f) };
+				vec3(-width / 2.0f, height, width / 2.0f),
+				vec3(width / 2.0f, height, width / 2.0f),
+				vec3(width / 2.0f, height, -width / 2.0f),
+				vec3(-width / 2.0f, height, -width / 2.0f) };
 
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
-				glm::vec3(0, 1, 2),
-				glm::vec3(0, 2, 3),
-				glm::vec3(4, 5, 6),
-				glm::vec3(4, 6, 7),
-				glm::vec3(0, 1, 5),
-				glm::vec3(0, 5, 4),
-				glm::vec3(1, 2, 6),
-				glm::vec3(1, 6, 5),
-				glm::vec3(2, 3, 7),
-				glm::vec3(2, 7, 6),
-				glm::vec3(3, 0, 4),
-				glm::vec3(3, 4, 7) };
+				vec3(0, 1, 2),
+				vec3(0, 2, 3),
+				vec3(4, 5, 6),
+				vec3(4, 6, 7),
+				vec3(0, 1, 5),
+				vec3(0, 5, 4),
+				vec3(1, 2, 6),
+				vec3(1, 6, 5),
+				vec3(2, 3, 7),
+				vec3(2, 7, 6),
+				vec3(3, 0, 4),
+				vec3(3, 4, 7) };
 }
 
 void Building::sendToPosition(){
