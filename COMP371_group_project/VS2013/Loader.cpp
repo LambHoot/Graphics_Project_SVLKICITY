@@ -2,6 +2,7 @@
 vector<GLuint> Loader::VAO;
 vector<GLuint> Loader::VBO;
 
+using namespace glm;
 
 Loader::Loader()
 {
@@ -41,7 +42,7 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 	VBO.push_back(vbo);
 }
 
-RawModel Loader::loadToVAO(vector <glm::vec3> positions, vector<glm::vec3> indices) {
+RawModel Loader::loadToVAO(vector <vec3> positions, vector<vec3> indices) {
 	GLfloat *pos = new GLfloat[positions.size() * 3];
 	GLuint *ind = new GLuint[indices.size() * 3];
 
