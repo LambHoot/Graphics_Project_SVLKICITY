@@ -17,6 +17,9 @@ using namespace std;
 
 class Street : public RawModel
 {
+private:
+	vec3 color = { 0.5f, 0.5f, 0.5f };
+
 public:
 	Street(glm::vec3 topLeft, glm::vec3 bottomRight);
 	~Street();

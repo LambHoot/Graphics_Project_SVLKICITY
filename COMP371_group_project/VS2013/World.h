@@ -14,6 +14,8 @@
 
 class World : public RawModel
 {
+private:
+
 public:
 	World(glm::vec3 fl, glm::vec3 br);
 	~World();

@@ -337,15 +337,15 @@ int main() {
 	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
-	//World world = World(farLeftMain, bottomRightMain);
-	//Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
+	World world = World(farLeftMain, bottomRightMain);
+	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
 	models.push_back(building);
-	//models.push_back(world);
-	//models.push_back(street);
+	models.push_back(world);
+	models.push_back(street);
 
 	//Pushing x axis streets
-	/*for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
+	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
 		models.push_back(s);
 	}
@@ -353,7 +353,7 @@ int main() {
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		models.push_back(s);
-	}*/	
+	}	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
