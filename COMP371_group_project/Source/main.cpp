@@ -73,6 +73,7 @@ float deltaTime = 0.0f;
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
+float tempAngle = 0.0f;
 void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
@@ -267,7 +268,11 @@ void trackMovement(){
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-	verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+	tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+	if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+		verticleAngle = tempAngle;
+	}
+	tempAngle = verticleAngle;
 
 	//Incrementing cameraPosition
 	if (upKey){
@@ -349,7 +354,7 @@ int main() {
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
-	float tempAngle = 0.0f;
+	tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		
 		glUniform1i(drawType_id, 0);
