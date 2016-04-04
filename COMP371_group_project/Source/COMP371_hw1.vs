@@ -24,17 +24,21 @@ void main () {
 	
 	//vec3 myCamPos = normalize(camPos);
 	//vec3 myIn_Position = normalize(in_Position);
-	/*
+
 	vec3 distanceFromCamToPos = in_Position - camPos;
 	distance = sqrt((distanceFromCamToPos.x * distanceFromCamToPos.x) + (distanceFromCamToPos.y * distanceFromCamToPos.y) + (distanceFromCamToPos.z * distanceFromCamToPos.z));
 
-	float f = 1.0f-((100.0f - distance)/100.0f);
+	float f = (1.0f-((100.0f - distance)/100.0f));
 	vec3 fogColor = vec3 (1.0f, 1.0f, 1.0f);
 	float ourColorR = (f*fogColor.x) + (1-f)*out_Color.x;
 	float ourColorG = (f*fogColor.y) + (1-f)*out_Color.y;
 	float ourColorB = (f*fogColor.z) + (1-f)*out_Color.z;
 	vec3 wow = vec3 (ourColorR, ourColorG, ourColorB);
-	out_Color = wow;
-	//out_Color = distanceFromCamToPos;*/
+	out_Color += wow;
+	if(distance > 200.0f){
+		out_Color = vec3 (1.0f,1.0f,1.0f);
+	}
+
+	//out_Color = distanceFromCamToPos;
 
 }
