@@ -309,6 +309,7 @@ int main() {
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
+	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		
 		glUniform1i(drawType_id, 0);
@@ -322,7 +323,11 @@ int main() {
 		glfwGetCursorPos(window, &xpos, &ypos);
 		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+		tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+		if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+			verticleAngle = tempAngle;
+		}
+		tempAngle = verticleAngle;
 
 		//Incrementing cameraPosition
 		if (upKey){
