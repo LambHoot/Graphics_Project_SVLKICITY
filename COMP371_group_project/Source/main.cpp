@@ -323,16 +323,9 @@ int main() {
 				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
 				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
 				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10);
-				if (nb==0){
+				if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
 					thisBlockBuildings.push_back(b);
 					buildingList.push_back(b);
-				}
-				else{
-					bool safe = Building::checkIfConflict(b, thisBlockBuildings);
-					if (safe){
-						thisBlockBuildings.push_back(b);
-						buildingList.push_back(b);
-					}
 				}
 
 			}
@@ -416,11 +409,9 @@ int main() {
 		for (int k = 0; k < buildingList.size(); k++){
 			render(buildingList[k]);
 		}
-
+		glUniform1i(drawType_id, 2);
 		render(world);
-		glUniform1i(drawType_id, 1);
-		//render(street);
-
+		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
 		}

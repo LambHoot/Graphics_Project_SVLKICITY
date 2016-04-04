@@ -31,7 +31,7 @@ public:
 	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
 	static Building generateRandomBuilding(glm::vec3 position, float max);
-	static bool checkIfConflict(Building build, vector<Building> buildList);
+	static bool checkIfConflict(Building build, vector<Building> buildList, float s1, float s2, float xOff, float zOff);
 	~Building();
 
 };

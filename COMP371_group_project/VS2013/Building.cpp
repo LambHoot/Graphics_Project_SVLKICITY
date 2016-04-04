@@ -1,5 +1,6 @@
 #include "Building.h"
 #include "Loader.h"
+#include "Street.h"
 
 //remove as not needed, just copied everything used in main
 using namespace std;
@@ -89,15 +90,72 @@ Building Building::generateRandomBuilding(glm::vec3 position, float max){
 	return bb;
 }
 
-bool Building::checkIfConflict(Building build, vector<Building> buildList){
-	for (int bl = 0; bl < buildList.size(); bl++){
-		glm::vec3 b1tl = { build.position.x - build.width / 2.0f, build.position.y, build.position.z + build.depth / 2.0f };
-		glm::vec3 b1br = { build.position.x + build.width / 2.0f, build.position.y, build.position.z - build.depth / 2.0f };
-		glm::vec3 b2tl = { buildList[bl].position.x - buildList[bl].width / 2.0f, buildList[bl].position.y, buildList[bl].position.z + buildList[bl].depth / 2.0f };
-		glm::vec3 b2br = { buildList[bl].position.x + buildList[bl].width / 2.0f, buildList[bl].position.y, buildList[bl].position.z - buildList[bl].depth / 2.0f };
-		if (((b1tl.x <= b2tl.x) && (b2tl.x <= b1br.x)) && ((b1tl.z <= b2tl.z) && (b2tl.z <= b1br.z))){
-			return false;
+bool Building::checkIfConflict(Building build, vector<Building> buildList, float sx, float sz, float xOff, float zOff){
+
+	float topZb = build.position.z + (build.depth) / 2.0f;
+	float bottomZb = build.position.z - (build.depth) / 2.0f;
+	float leftXb = build.position.x - (build.width) / 2.0f;
+	float rightXb = build.position.x + (build.width) / 2.0f;
+
+	float topZ = sz + 9.0f * zOff;
+	float bottomZ = sz;
+	float leftX = sx;
+	float rightX = sx + 9.0f * xOff;
+
+	//check streets
+	if (topZb > topZ){
+		return false;
+	}
+	else if (bottomZb < bottomZ){
+		return false;
+	}
+	else if (leftXb < leftX){
+		return false;
+	}
+	else if (rightXb > rightX){
+		return false;
+	}
+
+	//check buildings
+	for (int bi = 0; bi < buildList.size(); bi++){
+		topZ = buildList[bi].position.z + (buildList[bi].depth) / 2.0f;
+		bottomZ = buildList[bi].position.z - (buildList[bi].depth) / 2.0f;
+		leftX = buildList[bi].position.x - (buildList[bi].width) / 2.0f;
+		rightX = buildList[bi].position.x + (buildList[bi].width) / 2.0f;
+		//if (((topZb >= bottomZ) && ((topZb <= topZ))) && ((leftXb >= leftX) && (leftXb <= rightX))){
+		//	return false;
+		//}
+		//else if ((topZb >= bottomZ) && ((topZb <= topZ)) && ((rightXb >= leftX) && (rightXb <= rightX))){
+		//	return false;
+		//}
+		//else if (((bottomZb >= bottomZ) && ((bottomZb <= topZ))) && ((leftXb >= leftX) && (leftXb <= rightX))){
+		//	return false;
+		//}
+		//else if ((bottomZb >= bottomZ) && ((bottomZb <= topZ)) && ((rightXb >= leftX) && (rightXb <= rightX))){
+		//	return false;
+		//}
+
+		if ((topZb > bottomZ) && (topZb < topZ)){
+			if ((leftXb > leftX) && (leftXb < rightX)){
+				return false;
+			}
 		}
+		else if ((topZb > bottomZ) && (topZb < topZ)){
+			if ((rightXb > leftX) && (rightXb < rightX)){
+				return false;
+			}
+		}
+		if ((bottomZb > bottomZ) && ((bottomZb < topZ))){
+			if ((leftXb > leftX) && (leftXb < rightX)){
+				return false;
+			}
+		}
+		if ((bottomZb > bottomZ) && ((bottomZb < topZ))){
+			if ((rightXb > leftX) && (rightXb < rightX)){
+				return false;
+			}
+		}
+		
 	}
 	return true;
 }
