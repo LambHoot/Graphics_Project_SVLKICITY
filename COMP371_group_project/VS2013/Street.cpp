@@ -29,9 +29,10 @@ void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
 }
 
 void Street::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Streetpositions, Streetindices);
-	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	glBindVertexArray(vaoID);
+	loadVertices(Streetpositions);
+	loadIndices(Streetindices);
+	glBindVertexArray(0);
 }
 
 bool Street::isPointLegal(vec3 point) {

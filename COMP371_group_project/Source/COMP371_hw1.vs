@@ -1,4 +1,4 @@
-#version 130
+#version 330
 
 uniform mat4 view_matrix, model_matrix, proj_matrix;
 uniform int drawType;

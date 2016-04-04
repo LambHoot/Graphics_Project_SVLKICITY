@@ -9,23 +9,30 @@
 #include <vector>
 
 using namespace glm;
+using namespace std;
 
 class RawModel
 {
 
 protected: 
+
+	static const int point_size = 3;
 	GLuint vaoID;
-	GLuint vertexCount;
+	GLuint elementCount;
 
 public:
 	RawModel();
-	RawModel(GLuint vaoID, GLuint vertexCount);
+	RawModel(GLuint vaoID, GLuint elementCount);
 	~RawModel();
 
 	GLuint getVAOID();
-	GLuint getVertexCount();
-	
-	virtual bool isPointLegal(vec3 point);
+	GLuint getelementCount();
 
+	void loadVertices(vector<vec3> vertices);
+	void loadIndices(vector<vec3> indices);
+
+	void loadColors(vector<vec3> colors);
+
+	virtual bool isPointLegal(vec3 point);
 };
 

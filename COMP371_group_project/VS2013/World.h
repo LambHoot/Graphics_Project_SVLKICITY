@@ -12,6 +12,8 @@
 
 #include "RawModel.h"
 
+using namespace glm;
+
 class World : public RawModel
 {
 private:
@@ -22,6 +24,6 @@ public:
 	void loadFloor(glm::vec3 fl, glm::vec3 br);
 	void bindToModel();
 
-	bool isPointLegal(glm::vec3 point) override;
+	bool isPointLegal(vec3 point) override;
 };
 
