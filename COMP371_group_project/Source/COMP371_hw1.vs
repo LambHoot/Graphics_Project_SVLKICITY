@@ -2,6 +2,7 @@
 
 uniform mat4 view_matrix, model_matrix, proj_matrix;
 uniform int drawType;
+uniform vec3 camPos;
 
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 3) in vec3 vertexColor;
