@@ -5,13 +5,13 @@
 using namespace std;
 using namespace glm;
 
-vector<vec3> positions, indices;
+vector<vec3> positions, indices, colors;
 //Constructors
 Building::Building(float h, float w) : Building(h, w, vec3(0,0,0))
 {
 }
 
-Building::Building(float h, float w, vec3 position)
+Building::Building(float h, float w, vec3 position) : RawModel()
 {
 	this->height = h;
 	this->width = w;
@@ -28,9 +28,11 @@ Building::~Building()
 }
 
 void Building::bindToModel() {
-	RawModel temp = Loader::loadToVAO(positions, indices);
-	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	glBindVertexArray(vaoID);
+	loadVertices(positions);
+	loadIndices(indices);
+	loadColors(colors);
+	glBindVertexArray(0);
 }
 
 void Building::build(){
@@ -59,6 +61,11 @@ void Building::build(){
 				vec3(2, 7, 6),
 				vec3(3, 0, 4),
 				vec3(3, 4, 7) };
+
+	 //temporary color randomizer
+	 for (unsigned int i = 0; i < positions.size(); i++){
+		 colors.push_back(vec3(rand() / 255, rand() / 255, rand() / 255));
+	 }
 }
 
 void Building::sendToPosition(){
