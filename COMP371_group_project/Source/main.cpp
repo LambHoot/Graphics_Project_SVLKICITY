@@ -156,6 +156,9 @@ bool initialize() {
 	glEnable(GL_DEPTH_TEST); /// Enable depth-testing
 	glDepthFunc(GL_LESS);	/// The type of testing i.e. a smaller value as "closer"
 
+	//Seed random number generation
+	srand(static_cast <unsigned> (time(0)));
+
 	return true;
 }
 
@@ -363,7 +366,6 @@ int main() {
 		trackMovement();
 
 		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
-
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

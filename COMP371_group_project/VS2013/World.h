@@ -14,6 +14,9 @@
 
 class World : public RawModel
 {
+private:
+	vec3 color = {0.3f, 0.6f, 0.3f};
+
 public:
 	World(glm::vec3 fl, glm::vec3 br);
 	~World();
