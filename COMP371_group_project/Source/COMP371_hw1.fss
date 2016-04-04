@@ -1,16 +1,8 @@
-#version 130
+#version 330 core
 
-in vec3 out_Color;
-in float distance;
-out vec4 frag_Color;	//final output color used to render the point
+in vec3 frag_Color;
+out vec3 color;
 
-void main () {
-	frag_Color = vec4 (out_Color, 1.0);
-	/*float f = (100.0f - distance) / (100.0f - 0.1f);
-	vec3 fogColor = vec3 (0.0f, 0.0f, 0.0f);
-	float ourColorR = (f*fogColor.x) + (1-f)*out_Color.x;
-	float ourColorG = (f*fogColor.y) + (1-f)*out_Color.y;
-	float ourColorB = (f*fogColor.z) + (1-f)*out_Color.z;
-	vec3 wow = vec3 (ourColorR, ourColorG, ourColorB);
-	frag_Color = vec4 (wow, 1.0);*/
+void main(){
+  color = frag_Color;
 }

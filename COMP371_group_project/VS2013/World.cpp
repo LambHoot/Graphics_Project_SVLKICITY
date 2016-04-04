@@ -3,7 +3,7 @@
 
 using namespace glm;
 
-vector<vec3> Worldpositions, Worldindices;
+vector<vec3> Worldpositions, Worldindices, Worldcolors;
 
 World::World(glm::vec3 fl, glm::vec3 br)
 {
@@ -32,10 +32,16 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 		vec3(2, 0, 1),
 		vec3(1, 2, 3)
 	};
+
+	Worldcolors = {
+		color, color, color, color
+	};
 }
 
 void World::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Worldpositions, Worldindices);
-	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	glBindVertexArray(vaoID);
+	loadVertices(Worldpositions);
+	loadIndices(Worldindices);
+	loadColors(Worldcolors);
+	glBindVertexArray(0);
 }
