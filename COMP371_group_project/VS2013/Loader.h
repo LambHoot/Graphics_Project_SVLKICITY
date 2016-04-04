@@ -15,6 +15,8 @@ public:
 	Loader();
 	~Loader();
 
+	static enum Attrib {VERTEX, INDEX, NORMAL, COLOR};
+
 	static GLuint createNewVAO();
 	static GLuint createNewVBO();
 	static void storeDataInAttribList(int attNumber, GLfloat list[], int data_size);

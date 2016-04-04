@@ -41,7 +41,7 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 	GLuint vbo = createNewVBO();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, data_size, list, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data_size * point_size, list, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(attNumber);
 	glVertexAttribPointer(
 		attNumber,

@@ -26,7 +26,7 @@ void RawModel::loadVertices(vector<vec3> vertices){
 		ver[3 * i + 2] = vertices[i].z;
 	}
 
-	Loader::storeDataInAttribList(0, ver, sizeof(ver)*vertices.size() * point_size);
+	Loader::storeDataInAttribList(Loader::Attrib::VERTEX, ver, sizeof(ver)*vertices.size());
 }
 
 void RawModel::loadIndices(vector<vec3> indices){
@@ -40,7 +40,19 @@ void RawModel::loadIndices(vector<vec3> indices){
 		ind[3 * i + 2] = indices[i].z;
 	}
 
-	Loader::bindIndicesBuffer(ind, sizeof(ind)*indices.size() * point_size);
+	Loader::bindIndicesBuffer(ind, sizeof(ind) * elementCount);
+}
+
+void RawModel::loadColors(vector<vec3> colors){
+	GLfloat *col = new GLfloat[colors.size() * 3];
+
+	for (unsigned int i = 0; i < colors.size(); i++){
+		col[3 * i + 0] = colors[i].x;
+		col[3 * i + 1] = colors[i].y;
+		col[3 * i + 2] = colors[i].z;
+	}
+
+	Loader::storeDataInAttribList(Loader::Attrib::COLOR, col, sizeof(col)*colors.size());
 }
 
 GLuint RawModel::getVAOID(){

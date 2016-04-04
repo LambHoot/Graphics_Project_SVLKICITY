@@ -30,5 +30,7 @@ public:
 
 	void loadVertices(vector<vec3> vertices);
 	void loadIndices(vector<vec3> indices);
+
+	void loadColors(vector<vec3> colors);
 };
 
