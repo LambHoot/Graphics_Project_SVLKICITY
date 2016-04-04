@@ -64,7 +64,11 @@ void Building::build(){
 
 	 //temporary color randomizer
 	 for (unsigned int i = 0; i < positions.size(); i++){
-		 colors.push_back(vec3(rand() / 255, rand() / 255, rand() / 255));
+		 colors.push_back(vec3(
+			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+			 );
 	 }
 }
 

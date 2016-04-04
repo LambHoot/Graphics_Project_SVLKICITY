@@ -33,7 +33,7 @@ void Loader::bindIndicesBuffer(GLuint indices[], int data_size){
 	GLuint vbo = createNewVBO();
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data_size, indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -41,7 +41,7 @@ void Loader::storeDataInAttribList(int attNumber, GLfloat list[], int data_size)
 	GLuint vbo = createNewVBO();
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, data_size * point_size, list, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, data_size * point_size, list, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(attNumber);
 	glVertexAttribPointer(
 		attNumber,
