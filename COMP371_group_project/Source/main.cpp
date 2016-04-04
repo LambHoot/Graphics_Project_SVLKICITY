@@ -324,6 +324,9 @@ int main() {
 		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
 		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
 
+
+		vec3 oldCameraPos(cameraPosition);
+
 		//Incrementing cameraPosition
 		if (upKey){
 			if (noclip){
@@ -346,6 +349,11 @@ int main() {
 		}
 		else if (rightKey){
 			cameraPosition += Vright * deltaTime * speed;
+		}
+
+		if (!building.isPointLegal(cameraPosition) || !world.isPointLegal(cameraPosition))
+		{
+			cameraPosition = oldCameraPos;
 		}
 
 		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));

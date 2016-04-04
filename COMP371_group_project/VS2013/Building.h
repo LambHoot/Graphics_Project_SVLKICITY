@@ -14,10 +14,16 @@ using namespace glm;
 
 #include "RawModel.h"
 
+using namespace glm;
+
 class Building : public RawModel
 {
 
 private:
+	const float SIDE_COLLISION_PADDING = 0.2f;
+	const float TOP_COLLISION_PADDING = 0.5f;
+
+
 	float height;
 	float width;
 	vec3 position;
@@ -31,5 +37,6 @@ public:
 	Building(float h, float w);
 	~Building();
 
+	bool isPointLegal(vec3 point) override;
 };
 

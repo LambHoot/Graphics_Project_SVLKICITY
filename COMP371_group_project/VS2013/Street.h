@@ -12,15 +12,20 @@
 
 using namespace cimg_library;
 using namespace std;
+using namespace glm;
 
 #include "RawModel.h"
 
 class Street : public RawModel
 {
+private:
+	const float TOP_PADDING = 0.5f;
 public:
 	Street(glm::vec3 topLeft, glm::vec3 bottomRight);
 	~Street();
 	void loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight);
 	void bindToModel();
+
+	bool isPointLegal(vec3 point) override;
 };
 
