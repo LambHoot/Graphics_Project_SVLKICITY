@@ -1,7 +1,9 @@
 #include "World.h"
 #include "Loader.h"
 
-vector<glm::vec3> Worldpositions, Worldindices;
+using namespace glm;
+
+vector<vec3> Worldpositions, Worldindices, Worldcolors;
 
 World::World(glm::vec3 fl, glm::vec3 br)
 {
@@ -27,13 +29,19 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 		nearRight };
 
 	Worldindices = {
-		glm::vec3(2, 0, 1),
-		glm::vec3(1, 2, 3)
+		vec3(2, 0, 1),
+		vec3(1, 2, 3)
+	};
+
+	Worldcolors = {
+		color, color, color, color
 	};
 }
 
 void World::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Worldpositions, Worldindices);
-	this->vaoID = temp.getVAOID();
-	this->vertexCount = temp.getVertexCount();
+	glBindVertexArray(vaoID);
+	loadVertices(Worldpositions);
+	loadIndices(Worldindices);
+	loadColors(Worldcolors);
+	glBindVertexArray(0);
 }
