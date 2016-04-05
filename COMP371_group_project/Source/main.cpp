@@ -54,7 +54,7 @@ GLfloat point_size = 3.0f;
 GLuint WIDTH = 800;
 GLuint HEIGHT = 800;
 
-vector<RawModel> models;
+vector<RawModel*> models;
 
 
 void window_resize_callback(GLFWwindow* window, int width, int height){
@@ -308,7 +308,7 @@ void trackMovement(){
 	bool canCamMove = true;
 	for (unsigned i = 0; i < models.size(); i++)
 	{
-		if (!models[i].isPointLegal(cameraPosition))
+		if (!models[i]->isPointLegal(cameraPosition))
 		{
 			canCamMove = false;
 			break;
@@ -357,19 +357,19 @@ int main() {
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
-	models.push_back(building);
-	models.push_back(world);
-	//models.push_back(street);
+	models.push_back(&building);
+	models.push_back(&world);
+	models.push_back(&street);
 
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
-		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
-		//models.push_back(s);
+		Street* s = new Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
+		models.push_back(s);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
-		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
-		//models.push_back(s);
+		Street* s = new Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
+		models.push_back(s);
 	}	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
@@ -398,8 +398,8 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
 		glUniform1i(drawType_id, 0);
-		for (RawModel m : models){
-			render(m);
+		for (RawModel* m : models){
+			render(*m);
 		}
 
 		// Update other events like input handling
