@@ -7,6 +7,9 @@ Street::Street(glm::vec3 topLeft, glm::vec3 bottomRight)
 {
 	Street::loadRoad(topLeft, bottomRight);
 	Street::bindToModel();
+
+	this->topLeft = topLeft;
+	this->bottomRight = bottomRight;
 }
 
 

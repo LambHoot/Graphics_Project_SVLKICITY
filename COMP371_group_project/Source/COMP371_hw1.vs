@@ -20,10 +20,15 @@ void main () {
 	}
 
 	if(drawType == 2){// WORLD PLANE
-		out_Color = vec3 (1.0f, 0.0f, 0.0f);//green
+		out_Color = vec3 (0.0f, 1.0f, 0.0f);//green
 	}
 	if(drawType == 3){// STREET
 		out_Color = vec3 (0.0f, 0.0f, 1.0f);//blue
+	}
+
+	if(drawType == 4) // vehicle
+	{
+		out_Color = vec3 (1.0f, 1.0f, 0.0f);
 	}
 
 	vec3 distanceFromCamToPos = in_Position - camPos;
