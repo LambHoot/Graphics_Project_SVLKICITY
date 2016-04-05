@@ -4,6 +4,7 @@
 
 //remove as not needed, just copied everything used in main
 using namespace std;
+using namespace glm;
 
 vector<glm::vec3> positions, indices, colors, normals;
 //Constructors
@@ -121,6 +122,18 @@ void Building::sendToPosition(){
 		positions[i].z += position.z;
 	}
 	
+}
+
+bool Building::isPointLegal(vec3 point) {
+
+	if (point.x > position.x - width / 2.0f - SIDE_COLLISION_PADDING && point.x < position.x + width / 2.0f + SIDE_COLLISION_PADDING &&
+		point.y > position.y - SIDE_COLLISION_PADDING && point.y < position.y + height + TOP_COLLISION_PADDING &&
+		point.z > position.z - depth / 2.0f  - SIDE_COLLISION_PADDING && point.z < position.z + depth / 2.0f + SIDE_COLLISION_PADDING)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool Building::isBuildingPointLegal(glm::vec3 point) {

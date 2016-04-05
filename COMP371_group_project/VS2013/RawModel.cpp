@@ -23,3 +23,7 @@ GLuint RawModel::getVAOID(){
 GLuint RawModel::getVertexCount(){
 	return vertexCount;
 }
+
+bool RawModel::isPointLegal(vec3 point) {
+	return true;
+}
