@@ -5,7 +5,7 @@
 //remove as not needed, just copied everything used in main
 using namespace std;
 
-vector<glm::vec3> positions, indices, colors;
+vector<glm::vec3> positions, indices, colors, normals;
 //Constructors
 
 
@@ -33,7 +33,7 @@ Building::~Building()
 }
 
 void Building::bindToModel() {
-	RawModel temp = Loader::loadToVAO(positions, indices, colors);
+	RawModel temp = Loader::loadToVAO(positions, normals, indices, colors);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
@@ -50,6 +50,17 @@ void Building::build(){
 				position + glm::vec3(width / 2.0f, height, -depth / 2.0f),
 				position + glm::vec3(-width / 2.0f, height, -depth / 2.0f) };
 
+	normals = {
+		glm::vec3(-0.333333, 0.666667, 0.666667),
+		glm::vec3(0.816497, 0.408248, 0.408248),
+		glm::vec3(0.333333, 0.666667, -0.666667),
+		glm::vec3(-0.816497, 0.408248, -0.408248),
+		glm::vec3(-0.666667, 0.666667, 0.333333),
+		glm::vec3(0.408248, 0.408248, 0.816497),
+		glm::vec3(0.666667, 0.666667, -0.333333),
+		glm::vec3(-0.408248, 0.408248, -0.816497)
+	};
+
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
 				glm::vec3(0, 1, 2),
@@ -65,7 +76,6 @@ void Building::build(){
 				glm::vec3(3, 0, 4),
 				glm::vec3(3, 4, 7) };
 
-	 
 	 colors = {
 		 glm::vec3(
 		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),

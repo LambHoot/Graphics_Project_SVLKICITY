@@ -56,7 +56,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-glm::vec3 cameraPosition = glm::vec3(0, 300, -10);
+glm::vec3 cameraPosition = glm::vec3(0, 100, -10);
 glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
@@ -419,6 +419,7 @@ int main() {
 		for (int k = 0; k < buildingList.size(); k++){
 			render(buildingList[k]);
 		}
+
 		render(world);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);

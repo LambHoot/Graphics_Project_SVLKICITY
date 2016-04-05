@@ -1,7 +1,7 @@
 #include "Street.h"
 #include "Loader.h"
 
-vector<glm::vec3> Streetpositions, Streetindices, Streetcolors;
+vector<glm::vec3> Streetpositions, Streetindices, Streetcolors, Streetnormals;
 
 Street::Street(glm::vec3 topLeft, glm::vec3 bottomRight)
 {
@@ -29,16 +29,24 @@ void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
 	};
 
 	for (unsigned int i = 0; i < Streetpositions.size(); i++){
+		GLfloat monochrome = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		Streetcolors.push_back(glm::vec3(
-			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-			static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+			monochrome,
+			monochrome,
+			monochrome)
 			);
 	}
+
+	Streetnormals = {
+		glm::vec3(0, 1, 0),
+		glm::vec3(0, 1, 0),
+		glm::vec3(0, 1, 0),
+		glm::vec3(0, 1, 0)
+	};
 }
 
 void Street::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Streetpositions, Streetindices, Streetcolors);
+	RawModel temp = Loader::loadToVAO(Streetpositions, Streetnormals, Streetindices, Streetcolors);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
