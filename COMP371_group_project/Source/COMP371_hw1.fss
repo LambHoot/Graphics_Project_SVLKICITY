@@ -1,8 +1,24 @@
-#version 330 core
+#version 130
 
-in vec3 frag_Color;
-out vec3 color;
+uniform int drawType;
 
-void main(){
-  color = frag_Color;
+in vec3 out_Color;
+in float distance;
+out vec4 frag_Color;	//final output color used to render the point
+
+void main () {
+	if(drawType == 0){
+		frag_Color = vec4 (out_Color, 1.0);
+		//fog in fragshader
+		float f = (1.0f-((100.0f - distance)/100.0f));
+		vec3 fogColor = vec3 (0.0f, 0.0f, 0.0f);
+		float ourColorR = (f*fogColor.x) + (1.0f-f)*out_Color.x;
+		float ourColorG = (f*fogColor.y) + (1.0f-f)*out_Color.y;
+		float ourColorB = (f*fogColor.z) + (1.0f-f)*out_Color.z;
+		vec3 wow = vec3 (ourColorR, ourColorG, ourColorB);
+		frag_Color = vec4 (wow, 1.0);
+	}
+	else{
+		frag_Color = vec4 (out_Color, 1.0);
+	}
 }

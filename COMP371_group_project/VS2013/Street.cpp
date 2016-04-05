@@ -1,7 +1,7 @@
 #include "Street.h"
 #include "Loader.h"
 
-vector<glm::vec3> Streetpositions, Streetindices, Streetcolors;
+vector<glm::vec3> Streetpositions, Streetindices;
 
 Street::Street(glm::vec3 topLeft, glm::vec3 bottomRight)
 {
@@ -27,16 +27,10 @@ void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
 		glm::vec3(3, 0, 1),
 		glm::vec3(3, 2, 0)
 	};
-
-	Streetcolors = {
-		color, color, color, color
-	};
 }
 
 void Street::bindToModel() {
-	glBindVertexArray(vaoID);
-	loadVertices(Streetpositions);
-	loadIndices(Streetindices);
-	loadColors(Streetcolors);
-	glBindVertexArray(0);
+	RawModel temp = Loader::loadToVAO(Streetpositions, Streetindices);
+	this->vaoID = temp.getVAOID();
+	this->vertexCount = temp.getVertexCount();
 }
