@@ -1,17 +1,19 @@
 #include "Building.h"
 #include "Loader.h"
+#include "Street.h"
 
 //remove as not needed, just copied everything used in main
 using namespace std;
-using namespace glm;
 
-vector<vec3> positions, indices, colors;
+vector<glm::vec3> positions, indices;
 //Constructors
-Building::Building(float h, float w) : Building(h, w, vec3(0,0,0))
+
+
+Building::Building(float h, float w) : Building(h, w, w, glm::vec3(0,0,0))
 {
 }
 
-Building::Building(float h, float w, vec3 position) : RawModel()
+Building::Building(float h, float w, glm::vec3 position) : Building(h, w, w, position)
 {
 }
 
@@ -32,11 +34,9 @@ Building::~Building()
 }
 
 void Building::bindToModel() {
-	glBindVertexArray(vaoID);
-	loadVertices(positions);
-	loadIndices(indices);
-	loadColors(colors);
-	glBindVertexArray(0);
+	RawModel temp = Loader::loadToVAO(positions, indices);
+	this->vaoID = temp.getVAOID();
+	this->vertexCount = temp.getVertexCount();
 }
 
 void Building::build(){
@@ -53,27 +53,18 @@ void Building::build(){
 
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
-				vec3(0, 1, 2),
-				vec3(0, 2, 3),
-				vec3(4, 5, 6),
-				vec3(4, 6, 7),
-				vec3(0, 1, 5),
-				vec3(0, 5, 4),
-				vec3(1, 2, 6),
-				vec3(1, 6, 5),
-				vec3(2, 3, 7),
-				vec3(2, 7, 6),
-				vec3(3, 0, 4),
-				vec3(3, 4, 7) };
-
-	 //temporary color randomizer
-	 for (unsigned int i = 0; i < positions.size(); i++){
-		 colors.push_back(vec3(
-			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-			 static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
-			 );
-	 }
+				glm::vec3(0, 1, 2),
+				glm::vec3(0, 2, 3),
+				glm::vec3(4, 5, 6),
+				glm::vec3(4, 6, 7),
+				glm::vec3(0, 1, 5),
+				glm::vec3(0, 5, 4),
+				glm::vec3(1, 2, 6),
+				glm::vec3(1, 6, 5),
+				glm::vec3(2, 3, 7),
+				glm::vec3(2, 7, 6),
+				glm::vec3(3, 0, 4),
+				glm::vec3(3, 4, 7) };
 }
 
 void Building::sendToPosition(){
@@ -85,16 +76,70 @@ void Building::sendToPosition(){
 	
 }
 
-Building Building::generateRandomBuilding(glm::vec3 position, float max){
+bool Building::isBuildingPointLegal(glm::vec3 point) {
+	//bool inBuilding = false;
+	float SIDE_COLLISION_PADDING = 1.0f;
+	if (point.x > position.x - width / 2.0f - SIDE_COLLISION_PADDING && point.x < position.x + width / 2.0f + SIDE_COLLISION_PADDING &&
+		point.y > position.y - SIDE_COLLISION_PADDING && point.y < position.y + height &&
+		point.z > position.z - width / 2.0f - SIDE_COLLISION_PADDING && point.z < position.z + width / 2.0f + SIDE_COLLISION_PADDING)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+Building Building::generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block){
 	float lowSize = max/20.0f;
 	float highSize = max/5.0f;
 	float width = lowSize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highSize - lowSize)));
 	float depth = lowSize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highSize - lowSize)));
-	float heightFactor = glm::length((position)/50.0f);
-	heightFactor = (1.0f / heightFactor)*2.0f;
-	float lowHeight = max/10.0f;
+	float height = 0;
+
+	//float heightFactor = glm::length((position)/50.0f);
+	float heightFactor = (abs(block[0]) + abs(block[1])/2.0f);
+	float lowHeight = (max / 2.0f)*heightFactor;
 	float highHeight = (max / 5.0f)*heightFactor;
-	float height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+
+	if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 4.0f))){
+		lowHeight = 15.0f;
+		highHeight = 30.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 6.0f))){
+		lowHeight = 15.0f;
+		highHeight = 40.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 7.0f))){
+		lowHeight = 20.0f;
+		highHeight = 50.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 8.0f))){
+		lowHeight = 25.0f;
+		highHeight = 60.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 8.5f))){
+		lowHeight = 30.0f;
+		highHeight = 70.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 9.25f))){
+		lowHeight = 35.0f;
+		highHeight = 80.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else if ((abs(block[0]) + abs(block[1]) > ((max / 10) - 9.9f))){
+		lowHeight = 40.0f;
+		highHeight = 90.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
+	else{
+		height = 30.0f;
+		height = (lowHeight + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highHeight - lowHeight))));
+	}
 	Building bb = Building(height, width, depth, position);
 	return bb;
 }
@@ -131,40 +176,25 @@ bool Building::checkIfConflict(Building build, vector<Building> buildList, float
 		bottomZ = buildList[bi].position.z - (buildList[bi].depth) / 2.0f;
 		leftX = buildList[bi].position.x - (buildList[bi].width) / 2.0f;
 		rightX = buildList[bi].position.x + (buildList[bi].width) / 2.0f;
-		//if (((topZb >= bottomZ) && ((topZb <= topZ))) && ((leftXb >= leftX) && (leftXb <= rightX))){
-		//	return false;
-		//}
-		//else if ((topZb >= bottomZ) && ((topZb <= topZ)) && ((rightXb >= leftX) && (rightXb <= rightX))){
-		//	return false;
-		//}
-		//else if (((bottomZb >= bottomZ) && ((bottomZb <= topZ))) && ((leftXb >= leftX) && (leftXb <= rightX))){
-		//	return false;
-		//}
-		//else if ((bottomZb >= bottomZ) && ((bottomZb <= topZ)) && ((rightXb >= leftX) && (rightXb <= rightX))){
-		//	return false;
-		//}
 
-		if ((topZb > bottomZ) && (topZb < topZ)){
-			if ((leftXb > leftX) && (leftXb < rightX)){
-				return false;
-			}
-		}
-		else if ((topZb > bottomZ) && (topZb < topZ)){
-			if ((rightXb > leftX) && (rightXb < rightX)){
-				return false;
-			}
-		}
-		if ((bottomZb > bottomZ) && ((bottomZb < topZ))){
-			if ((leftXb > leftX) && (leftXb < rightX)){
-				return false;
-			}
-		}
-		if ((bottomZb > bottomZ) && ((bottomZb < topZ))){
-			if ((rightXb > leftX) && (rightXb < rightX)){
-				return false;
-			}
-		}
-		
+		glm::vec3 bTL = { leftXb, 0.0f, topZb };
+		glm::vec3 bTR = { rightXb, 0.0f, topZb };
+		glm::vec3 bBL = { leftXb, 0.0f, bottomZb };
+		glm::vec3 bBR = { rightXb, 0.0f, bottomZb };
+
+		glm::vec3 TL = { leftX, 0.0f, topZ };
+		glm::vec3 TR = { rightX, 0.0f, topZ };
+		glm::vec3 BL = { leftX, 0.0f, bottomZ };
+		glm::vec3 BR = { rightX, 0.0f, bottomZ };
+
+		if ((!(buildList[bi].isBuildingPointLegal(bTL))) || (!(build.isBuildingPointLegal(TL))))
+			return false;
+		if ((!(buildList[bi].isBuildingPointLegal(bTR))) || (!(build.isBuildingPointLegal(TR))))
+			return false;
+		if ((!(buildList[bi].isBuildingPointLegal(bBL))) || (!(build.isBuildingPointLegal(BL))))
+			return false;
+		if ((!(buildList[bi].isBuildingPointLegal(bBR))) || (!(build.isBuildingPointLegal(BR))))
+			return false;
 	}
 	return true;
 }

@@ -8,29 +8,19 @@
 #include "gtc/constants.hpp"
 #include <vector>
 
-using namespace std;
-using namespace glm;
-
 class RawModel
 {
 
 protected: 
-
-	static const int point_size = 3;
 	GLuint vaoID;
-	GLuint elementCount;
+	GLuint vertexCount;
 
 public:
 	RawModel();
-	RawModel(GLuint vaoID, GLuint elementCount);
+	RawModel(GLuint vaoID, GLuint vertexCount);
 	~RawModel();
 
 	GLuint getVAOID();
-	GLuint getelementCount();
-
-	void loadVertices(vector<vec3> vertices);
-	void loadIndices(vector<vec3> indices);
-
-	void loadColors(vector<vec3> colors);
+	GLuint getVertexCount();
 };
 

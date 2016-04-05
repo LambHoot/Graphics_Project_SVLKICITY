@@ -25,7 +25,6 @@
 #include "../VS2013/Street.h"
 
 using namespace std;
-using namespace glm;
 
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
 #define DEG_TO_RAD	M_PI/180.0f
@@ -43,9 +42,9 @@ GLuint camPos_id = 0;
 
 
 ///Transformations
-mat4 proj_matrix;
-mat4 view_matrix;
-mat4 model_matrix;
+glm::mat4 proj_matrix;
+glm::mat4 view_matrix;
+glm::mat4 model_matrix;
 
 // Given a 3D environment
 GLfloat point_size = 3.0f;
@@ -60,8 +59,8 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-vec3 cameraPosition = vec3(0, 1, -10);
-vec3 direction, Vright, up;
+glm::vec3 cameraPosition = glm::vec3(0, 300, -10);
+glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
@@ -79,7 +78,6 @@ void loadTexture(){
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
-float tempAngle = 0.0f;
 void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
@@ -267,57 +265,10 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
-//Probably to be extracted into player class or something
-void trackMovement(){
-	//Getting Time data
-	currentTime = glfwGetTime();
-	deltaTime = float(currentTime - lastTime);
-
-	//Determine cursor cameraPosition and angle
-	glfwGetCursorPos(window, &xpos, &ypos);
-	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
-	horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-	tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
-	if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
-		verticleAngle = tempAngle;
-	}
-	tempAngle = verticleAngle;
-
-	//Incrementing cameraPosition
-	if (upKey){
-		if (noclip){
-			cameraPosition += direction * deltaTime * speed;
-		}
-		else if (!noclip){
-			cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
-		}
-	}
-	else if (downKey){
-		if (noclip){
-			cameraPosition -= direction * deltaTime * speed;
-		}
-		else if (!noclip){
-			cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
-		}
-	}
-	if (leftKey){
-		cameraPosition -= Vright * deltaTime * speed;
-	}
-	else if (rightKey){
-		cameraPosition += Vright * deltaTime * speed;
-	}
-
-	direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
-	Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
-	up = cross(Vright, direction);
-}
-
-
-vector<RawModel> models;
 void render(RawModel model){
 	glBindVertexArray(model.getVAOID());
 	glEnableVertexAttribArray(0);
-	glDrawElements(GL_TRIANGLES, model.getelementCount(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, (void*)0);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
@@ -331,14 +282,14 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = translate(view_matrix, vec3(0, 0, -10)); //Camera's cameraPosition
-	proj_matrix = perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
+	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
+	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
 	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
-	float xOffset = (bottomRightMain.x - farLeftMain.x)/1000; // 1000 lanes exist with this width
-	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
 	World world = World(farLeftMain, bottomRightMain);
@@ -374,10 +325,17 @@ int main() {
 				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
 				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
 				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
-				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10);
-				if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
-					thisBlockBuildings.push_back(b);
-					buildingList.push_back(b);
+				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) });
+				int nbFailures = 0;
+				while (nbFailures < 10){
+					if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
+						thisBlockBuildings.push_back(b);
+						buildingList.push_back(b);
+						break;
+					}
+					else{
+						nbFailures++;
+					}
 				}
 
 			}
@@ -395,28 +353,66 @@ int main() {
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
-	tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		
+		//cout << 0.0f - cameraPosition.x << " " << 0.0f - cameraPosition.y << " " << 0.0f - cameraPosition.z << endl;
+
 		glUniform1i(drawType_id, 0);
 		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
-		trackMovement();
+		//Getting Time data
+		currentTime = glfwGetTime();
+		deltaTime = float(currentTime - lastTime);
 
-		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
+		//Determine cursor cameraPosition and angle
+		glfwGetCursorPos(window, &xpos, &ypos);
+		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+
+		//Incrementing cameraPosition
+		if (upKey){
+			if (noclip){
+				cameraPosition += direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition += glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		else if (downKey){
+			if (noclip){
+				cameraPosition -= direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		if (leftKey){
+			cameraPosition -= Vright * deltaTime * speed;
+		}
+		else if (rightKey){
+			cameraPosition += Vright * deltaTime * speed;
+		}
+
+		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+		Vright = glm::vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+		up = glm::cross(Vright, direction);
+
+		view_matrix = glm::lookAt(cameraPosition, cameraPosition + direction, up);
 
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
 
 		//Pass the values of the three matrices to the shaders
-		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, value_ptr(proj_matrix));
-		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
-		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
+		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, glm::value_ptr(proj_matrix));
+		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
 		//render(building);
@@ -425,9 +421,7 @@ int main() {
 		}
 		glUniform1i(drawType_id, 2);
 		render(world);
-		glUniform1i(drawType_id, 1);
-		//render(street);
-
+		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
 		}
