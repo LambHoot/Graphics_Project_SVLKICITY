@@ -5,7 +5,7 @@
 //remove as not needed, just copied everything used in main
 using namespace std;
 
-vector<glm::vec3> positions, indices;
+vector<glm::vec3> positions, indices, colors;
 //Constructors
 
 
@@ -24,7 +24,6 @@ Building::Building(float h, float w, float d, glm::vec3 position){
 	this->position = position;
 
 	Building::build();
-	Building::sendToPosition();
 	Building::bindToModel();
 }
 
@@ -34,22 +33,22 @@ Building::~Building()
 }
 
 void Building::bindToModel() {
-	RawModel temp = Loader::loadToVAO(positions, indices);
+	RawModel temp = Loader::loadToVAO(positions, indices, colors);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
 
 void Building::build(){
 	positions = { 
-				glm::vec3(-width / 2.0f, 0.0f, depth / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, depth / 2.0f),
-				glm::vec3(width / 2.0f, 0.0f, -depth / 2.0f),
-				glm::vec3(-width / 2.0f, 0.0f, -depth / 2.0f),
+				position + glm::vec3(-width / 2.0f, 0.0f, depth / 2.0f),
+				position + glm::vec3(width / 2.0f, 0.0f, depth / 2.0f),
+				position + glm::vec3(width / 2.0f, 0.0f, -depth / 2.0f),
+				position + glm::vec3(-width / 2.0f, 0.0f, -depth / 2.0f),
 
-				glm::vec3(-width / 2.0f, height, depth / 2.0f),
-				glm::vec3(width / 2.0f, height, depth / 2.0f),
-				glm::vec3(width / 2.0f, height, -depth / 2.0f),
-				glm::vec3(-width / 2.0f, height, -depth / 2.0f) };
+				position + glm::vec3(-width / 2.0f, height, depth / 2.0f),
+				position + glm::vec3(width / 2.0f, height, depth / 2.0f),
+				position + glm::vec3(width / 2.0f, height, -depth / 2.0f),
+				position + glm::vec3(-width / 2.0f, height, -depth / 2.0f) };
 
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
@@ -65,6 +64,44 @@ void Building::build(){
 				glm::vec3(2, 7, 6),
 				glm::vec3(3, 0, 4),
 				glm::vec3(3, 4, 7) };
+
+	 
+	 colors = {
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
+		 glm::vec3(
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+	 };
+	 
 }
 
 void Building::sendToPosition(){

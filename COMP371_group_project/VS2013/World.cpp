@@ -1,7 +1,7 @@
 #include "World.h"
 #include "Loader.h"
 
-vector<glm::vec3> Worldpositions, Worldindices;
+vector<glm::vec3> Worldpositions, Worldindices, Worldcolors;
 
 World::World(glm::vec3 fl, glm::vec3 br)
 {
@@ -30,10 +30,19 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 		glm::vec3(2, 0, 1),
 		glm::vec3(1, 2, 3)
 	};
+
+	for (unsigned int i = 0; i < Worldpositions.size(); i++){
+		Worldcolors.push_back(glm::vec3(
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+			static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+			);
+	}
+	
 }
 
 void World::bindToModel() {
-	RawModel temp = Loader::loadToVAO(Worldpositions, Worldindices);
+	RawModel temp = Loader::loadToVAO(Worldpositions, Worldindices, Worldcolors);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
