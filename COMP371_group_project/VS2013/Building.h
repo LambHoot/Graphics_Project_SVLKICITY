@@ -18,17 +18,21 @@ class Building : public RawModel
 {
 
 private:
-	float height;
-	float width;
-	vec3 position;
 
 	void build();
 	void sendToPosition();
 	void bindToModel();
 
 public:
-	Building(float h, float w, vec3 position);
+	float height;
+	float width;
+	float depth;
+	glm::vec3 position;
+	Building(float h, float w, float d, glm::vec3 position);
+	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
+	static Building generateRandomBuilding(glm::vec3 position, float max);
+	static bool checkIfConflict(Building build, vector<Building> buildList, float s1, float s2, float xOff, float zOff);
 	~Building();
 
 };

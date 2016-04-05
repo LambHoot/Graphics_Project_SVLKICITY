@@ -15,11 +15,12 @@ Street::~Street()
 }
 
 void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
+	float yVal = 0.1f;
 	Streetpositions = {
-		glm::vec3 {topLeft.x, 0.1f, topLeft.z},
-		glm::vec3{ topLeft.x, 0.1f, bottomRight.z },
-		glm::vec3{ bottomRight.x, 0.1f, topLeft.z },
-		glm::vec3{ bottomRight.x, 0.1f, bottomRight.z } 
+		glm::vec3{ topLeft.x, yVal, topLeft.z },
+		glm::vec3{ topLeft.x, yVal, bottomRight.z },
+		glm::vec3{ bottomRight.x, yVal, topLeft.z },
+		glm::vec3{ bottomRight.x, yVal, bottomRight.z }
 	};
 
 	Streetindices = {

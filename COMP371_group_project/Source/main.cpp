@@ -65,7 +65,7 @@ vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 10.0f;
+float speed = 50.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
@@ -325,8 +325,8 @@ int main() {
 	//create RawModel based on vertex and index data
 	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
-	float xOffset = (bottomRightMain.x - farLeftMain.x)/1000; // 1000 lanes exist with this width
-	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
 	World world = World(farLeftMain, bottomRightMain);
@@ -336,16 +336,53 @@ int main() {
 	models.push_back(world);
 	models.push_back(street);
 
+	vector<float> streetXList;
+	vector<float> streetZList;
+
+	vector<Building> buildingList;
+
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
 		models.push_back(s);
+		streetXList.push_back(i + xOffset);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		models.push_back(s);
-	}	
+		streetZList.push_back(j + zOffset);
+	}
+	for (int x = 0; x < streetXList.size(); x++){
+		for (int z = 0; z < streetZList.size(); z++){
+			vector <Building> thisBlockBuildings;
+			for (int nb = 0; nb < 50; nb++){
+				//generate 20 buildings per block
+				float lowX = streetXList[x];
+				float highX = streetXList[x] + xOffset * 10.0f;
+				float lowZ = streetZList[z];
+				float highZ = streetZList[z] + zOffset * 10.0f;
+				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
+				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
+				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
+				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10);
+				if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
+					thisBlockBuildings.push_back(b);
+					buildingList.push_back(b);
+				}
+
+			}
+
+
+			//glm::vec3 blockPlacement = { streetXList[x], 0.0f, streetZList[z] };
+			//Building b = Building::generateRandomBuilding(blockPlacement, xOffset*10);
+			//buildingList.push_back(b);
+			//(streetXList[x], streetZList[z])->(streetXList[x] + xOffset*10, streetZList[z] + zOffset*10)
+		}
+	}
+
+	
+	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
@@ -362,7 +399,8 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
@@ -376,6 +414,14 @@ int main() {
 		for (RawModel m : models){
 			render(m);
 		}
+
+		// Rendering. TODO: foreach loop of RawModels in scene
+		//render(building);
+		for (int k = 0; k < buildingList.size(); k++){
+			render(buildingList[k]);
+		}
+		glUniform1i(drawType_id, 2);
+		render(world);
 
 		// Update other events like input handling
 		glfwPollEvents();
