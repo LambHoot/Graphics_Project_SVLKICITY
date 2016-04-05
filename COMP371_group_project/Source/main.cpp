@@ -23,6 +23,7 @@
 #include "../VS2013/Building.h"
 #include "../VS2013/World.h"
 #include "../VS2013/Street.h"
+#include "../VS2013/Coin.h"
 
 using namespace std;
 using namespace glm;
@@ -278,10 +279,23 @@ void render(RawModel model){
 	glBindVertexArray(0);
 }
 
+vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
+
+	return vec;
+}
+
+template <typename T>
+void remove(std::vector<T>& vec, size_t pos)
+{
+	std::vector<T>::iterator it = vec.begin();
+	std::advance(it, pos);
+	vec.erase(it);
+}
+
 int main() {
 	initialize();
 
-	bool swap = true;
+	int nbCollectedCoins = 0;
 
 	///Load the shaders
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
@@ -295,16 +309,31 @@ int main() {
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
 	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
 	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
-	// 10 streets will exist in each direction
-	Building building = Building(5.0f, 1.0f);
-	World world = World(farLeftMain, bottomRightMain);
-	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
+
+	//creating object containers
 	vector<Street> streetList;
 
 	vector<float> streetXList;
 	vector<float> streetZList;
 
 	vector<Building> buildingList;
+
+	vector<Coin> coinList;
+
+	// BUILDING OBJECTS!
+
+	// 10 streets will exist in each direction
+	Building building = Building(5.0f, 1.0f);
+
+	Coin coin = Coin(glm::vec3{0.0f, 300.0f, 0.0f});
+	Coin coin2 = Coin(glm::vec3{ 10.0f, 300.0f, 0.0f });
+	Coin coin3 = Coin(glm::vec3{ 20.0f, 300.0f, 0.0f });
+	coinList.push_back(coin);
+	coinList.push_back(coin2);
+	coinList.push_back(coin3);
+
+	World world = World(farLeftMain, bottomRightMain);
+	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
@@ -419,6 +448,19 @@ int main() {
 			cameraPosition = oldCameraPos;
 		}
 
+		for (int j = 0; j < coinList.size(); j++)
+		{
+			if (Coin::isCoinTouched(coinList[j], cameraPosition))
+			{
+				cout << "touched! " << coinList.size() << " " << j << endl;
+				//remove coin
+				remove(coinList, j);
+				//increase coin count
+				nbCollectedCoins++;
+				break;
+			}
+		}
+
 		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
 		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
 		up = cross(Vright, direction);
@@ -449,6 +491,9 @@ int main() {
 		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
+		}
+		for (int j = 0; j < coinList.size(); j++){
+			render(coinList[j]);
 		}
 
 		// Update other events like input handling
