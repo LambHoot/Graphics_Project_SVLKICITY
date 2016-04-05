@@ -25,6 +25,7 @@
 #include "../VS2013/Street.h"
 
 using namespace std;
+using namespace glm;
 
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
 #define DEG_TO_RAD	M_PI/180.0f
@@ -359,8 +360,6 @@ int main() {
 	noclip = false;
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
-		
-		//cout << 0.0f - cameraPosition.x << " " << 0.0f - cameraPosition.y << " " << 0.0f - cameraPosition.z << endl;
 
 		glUniform1i(drawType_id, 0);
 		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -378,13 +377,16 @@ int main() {
 			verticleAngle = tempAngle;
 		}
 		tempAngle = verticleAngle;
+
+		vec3 oldCameraPos(cameraPosition);
+
 		//Incrementing cameraPosition
 		if (upKey){
 			if (noclip){
 				cameraPosition += direction * deltaTime * speed;
 			}
 			else if (!noclip){
-				cameraPosition += glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+				cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
 		else if (downKey){
@@ -392,7 +394,7 @@ int main() {
 				cameraPosition -= direction * deltaTime * speed;
 			}
 			else if (!noclip){
-				cameraPosition -= glm::vec3(direction.x, 0, direction.z) * deltaTime * speed;
+				cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
 			}
 		}
 		if (leftKey){
@@ -402,11 +404,26 @@ int main() {
 			cameraPosition += Vright * deltaTime * speed;
 		}
 
-		direction = glm::vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
-		Vright = glm::vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
-		up = glm::cross(Vright, direction);
+		bool buildingHit = false;
+		for (int j = 0; j < buildingList.size(); j++)
+		{
+			if (!buildingList[j].isPointLegal(cameraPosition))
+			{
+				buildingHit = true;
+				break;
+			}
+		}
 
-		view_matrix = glm::lookAt(cameraPosition, cameraPosition + direction, up);
+		if (buildingHit || !world.isPointLegal(cameraPosition))
+		{
+			cameraPosition = oldCameraPos;
+		}
+
+		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+		up = cross(Vright, direction);
+
+		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
 
 
 		// Clear Screen with color
@@ -418,9 +435,9 @@ int main() {
 		glUseProgram(shader_program);
 
 		//Pass the values of the three matrices to the shaders
-		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, glm::value_ptr(proj_matrix));
-		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
-		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, value_ptr(proj_matrix));
+		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
+		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
 		//render(building);

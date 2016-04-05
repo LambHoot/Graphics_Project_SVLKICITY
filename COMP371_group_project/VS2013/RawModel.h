@@ -8,6 +8,8 @@
 #include "gtc/constants.hpp"
 #include <vector>
 
+using namespace glm;
+
 class RawModel
 {
 
@@ -22,5 +24,8 @@ public:
 
 	GLuint getVAOID();
 	GLuint getVertexCount();
+	
+	virtual bool isPointLegal(vec3 point);
+
 };
 

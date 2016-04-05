@@ -37,3 +37,7 @@ void World::bindToModel() {
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
+
+bool World::isPointLegal(glm::vec3 point) {
+	return point.y > TOP_PADDING;
+}

@@ -34,3 +34,7 @@ void Street::bindToModel() {
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
+
+bool Street::isPointLegal(vec3 point) {
+	return true;
+}

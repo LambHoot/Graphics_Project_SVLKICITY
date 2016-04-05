@@ -4,8 +4,9 @@
 
 //remove as not needed, just copied everything used in main
 using namespace std;
+using namespace glm;
 
-vector<glm::vec3> positions, indices;
+vector<vec3> positions, indices;
 //Constructors
 
 
@@ -53,18 +54,18 @@ void Building::build(){
 
 	//TODO: Think of efficient indexing algorithm. Hopefully in tandem with vertex placement
 	 indices = {	
-				glm::vec3(0, 1, 2),
-				glm::vec3(0, 2, 3),
-				glm::vec3(4, 5, 6),
-				glm::vec3(4, 6, 7),
-				glm::vec3(0, 1, 5),
-				glm::vec3(0, 5, 4),
-				glm::vec3(1, 2, 6),
-				glm::vec3(1, 6, 5),
-				glm::vec3(2, 3, 7),
-				glm::vec3(2, 7, 6),
-				glm::vec3(3, 0, 4),
-				glm::vec3(3, 4, 7) };
+				vec3(0, 1, 2),
+				vec3(0, 2, 3),
+				vec3(4, 5, 6),
+				vec3(4, 6, 7),
+				vec3(0, 1, 5),
+				vec3(0, 5, 4),
+				vec3(1, 2, 6),
+				vec3(1, 6, 5),
+				vec3(2, 3, 7),
+				vec3(2, 7, 6),
+				vec3(3, 0, 4),
+				vec3(3, 4, 7) };
 }
 
 void Building::sendToPosition(){
@@ -74,6 +75,18 @@ void Building::sendToPosition(){
 		positions[i].z += position.z;
 	}
 	
+}
+
+bool Building::isPointLegal(vec3 point) {
+
+	if (point.x > position.x - width / 2.0f - SIDE_COLLISION_PADDING && point.x < position.x + width / 2.0f + SIDE_COLLISION_PADDING &&
+		point.y > position.y - SIDE_COLLISION_PADDING && point.y < position.y + height + TOP_COLLISION_PADDING &&
+		point.z > position.z - depth / 2.0f  - SIDE_COLLISION_PADDING && point.z < position.z + depth / 2.0f + SIDE_COLLISION_PADDING)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool Building::isBuildingPointLegal(glm::vec3 point) {
