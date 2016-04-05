@@ -78,11 +78,10 @@ void Building::sendToPosition(){
 }
 
 bool Building::isPointLegal(vec3 point) {
-	//bool inBuilding = false;
 
 	if (point.x > position.x - width / 2.0f - SIDE_COLLISION_PADDING && point.x < position.x + width / 2.0f + SIDE_COLLISION_PADDING &&
 		point.y > position.y - SIDE_COLLISION_PADDING && point.y < position.y + height + TOP_COLLISION_PADDING &&
-		point.z > position.z - width / 2.0f  - SIDE_COLLISION_PADDING && point.z < position.z + width / 2.0f + SIDE_COLLISION_PADDING)
+		point.z > position.z - depth / 2.0f  - SIDE_COLLISION_PADDING && point.z < position.z + depth / 2.0f + SIDE_COLLISION_PADDING)
 	{
 		return false;
 	}

@@ -360,7 +360,7 @@ int main() {
 	noclip = false;
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
-		
+
 		glUniform1i(drawType_id, 0);
 		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
@@ -404,7 +404,17 @@ int main() {
 			cameraPosition += Vright * deltaTime * speed;
 		}
 
-		if (!building.isPointLegal(cameraPosition) || !world.isPointLegal(cameraPosition))
+		bool buildingHit = false;
+		for (int j = 0; j < buildingList.size(); j++)
+		{
+			if (!buildingList[j].isPointLegal(cameraPosition))
+			{
+				buildingHit = true;
+				break;
+			}
+		}
+
+		if (buildingHit || !world.isPointLegal(cameraPosition))
 		{
 			cameraPosition = oldCameraPos;
 		}
