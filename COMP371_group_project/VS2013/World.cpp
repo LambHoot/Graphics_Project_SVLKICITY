@@ -1,9 +1,7 @@
 #include "World.h"
 #include "Loader.h"
 
-using namespace glm;
-
-vector<vec3> Worldpositions, Worldindices;
+vector<glm::vec3> Worldpositions, Worldindices;
 
 World::World(glm::vec3 fl, glm::vec3 br)
 {
@@ -29,8 +27,8 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 		nearRight };
 
 	Worldindices = {
-		vec3(2, 0, 1),
-		vec3(1, 2, 3)
+		glm::vec3(2, 0, 1),
+		glm::vec3(1, 2, 3)
 	};
 }
 

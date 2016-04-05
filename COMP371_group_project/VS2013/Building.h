@@ -8,6 +8,7 @@
 #include "gtc/type_ptr.hpp"
 #include "gtc/constants.hpp"
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 using namespace glm;
@@ -23,18 +24,21 @@ private:
 	const float SIDE_COLLISION_PADDING = 0.2f;
 	const float TOP_COLLISION_PADDING = 0.5f;
 
-
-	float height;
-	float width;
-	vec3 position;
-
 	void build();
 	void sendToPosition();
 	void bindToModel();
 
 public:
-	Building(float h, float w, vec3 position);
+	float height;
+	float width;
+	float depth;
+	glm::vec3 position;
+	Building(float h, float w, float d, glm::vec3 position);
+	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
+	static Building generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block);
+	static bool checkIfConflict(Building build, vector<Building> buildList, float s1, float s2, float xOff, float zOff);
+	bool Building::isBuildingPointLegal(glm::vec3 point);
 	~Building();
 
 	bool isPointLegal(vec3 point) override;

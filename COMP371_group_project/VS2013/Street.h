@@ -23,6 +23,7 @@ private:
 public:
 	Street(glm::vec3 topLeft, glm::vec3 bottomRight);
 	~Street();
+	vector<glm::vec3> Streetpositions;
 	void loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight);
 	void bindToModel();
 

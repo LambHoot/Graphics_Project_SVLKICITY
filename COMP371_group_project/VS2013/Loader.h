@@ -2,7 +2,6 @@
 #include "glm.hpp"
 
 using namespace std;
-using namespace glm;
 
 #include "RawModel.h"
 
@@ -20,7 +19,7 @@ public:
 	Loader();
 	~Loader();
 
-	static RawModel loadToVAO(vector<vec3> positions, vector<vec3> indices);
+	static RawModel loadToVAO(vector<glm::vec3> positions, vector<glm::vec3> indices);
 	static bool cleanUp();
 };
 

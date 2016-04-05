@@ -43,9 +43,9 @@ GLuint camPos_id = 0;
 
 
 ///Transformations
-mat4 proj_matrix;
-mat4 view_matrix;
-mat4 model_matrix;
+glm::mat4 proj_matrix;
+glm::mat4 view_matrix;
+glm::mat4 model_matrix;
 
 // Given a 3D environment
 GLfloat point_size = 3.0f;
@@ -60,12 +60,12 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-vec3 cameraPosition = vec3(0, 1, -10);
-vec3 direction, Vright, up;
+glm::vec3 cameraPosition = glm::vec3(0, 300, -10);
+glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 10.0f;
+float speed = 50.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
@@ -87,6 +87,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_LEFT:
+	case GLFW_KEY_A:
 		if (action == GLFW_PRESS){
 			leftKey = true;
 		}
@@ -94,6 +95,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			leftKey = false;
 		}
 	case GLFW_KEY_RIGHT:
+	case GLFW_KEY_D:
 		if (action == GLFW_PRESS){
 			rightKey = true;
 		}
@@ -102,6 +104,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_UP:
+	case GLFW_KEY_W:
 		if (action == GLFW_PRESS){
 			upKey = true;
 		}
@@ -110,6 +113,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_DOWN:
+	case GLFW_KEY_S:
 		if (action == GLFW_PRESS){
 			downKey = true;
 		}
@@ -160,6 +164,9 @@ bool initialize() {
 	/// Enable the depth test i.e. draw a pixel if it's closer to the viewer
 	glEnable(GL_DEPTH_TEST); /// Enable depth-testing
 	glDepthFunc(GL_LESS);	/// The type of testing i.e. a smaller value as "closer"
+
+	//Seed random number generation
+	srand(static_cast <unsigned> (time(0)));
 
 	return true;
 }
@@ -280,35 +287,78 @@ int main() {
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
 	//Set the camera
-	view_matrix = translate(view_matrix, vec3(0, 0, -10)); //Camera's cameraPosition
-	proj_matrix = perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f); //Camera's "lense"
+	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
+	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f); //Camera's "lense"
 
 	//create RawModel based on vertex and index data
 	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
-	float xOffset = (bottomRightMain.x - farLeftMain.x)/1000; // 1000 lanes exist with this width
-	float zOffset = -(bottomRightMain.z - farLeftMain.z) / 1000; // 1000 lanes exist with this width
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 	vector<Street> streetList;
 
+	vector<float> streetXList;
+	vector<float> streetZList;
+
+	vector<Building> buildingList;
+
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
 		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
 		streetList.push_back(s);
+		streetXList.push_back(i + xOffset);
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
 		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
 		streetList.push_back(s);
+		streetZList.push_back(j + zOffset);
+	}
+	for (int x = 0; x < streetXList.size(); x++){
+		for (int z = 0; z < streetZList.size(); z++){
+			vector <Building> thisBlockBuildings;
+			for (int nb = 0; nb < 50; nb++){
+				//generate 20 buildings per block
+				float lowX = streetXList[x];
+				float highX = streetXList[x] + xOffset * 10.0f;
+				float lowZ = streetZList[z];
+				float highZ = streetZList[z] + zOffset * 10.0f;
+				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
+				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
+				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
+				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) });
+				int nbFailures = 0;
+				while (nbFailures < 10){
+					if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
+						thisBlockBuildings.push_back(b);
+						buildingList.push_back(b);
+						break;
+					}
+					else{
+						nbFailures++;
+					}
+				}
+
+			}
+
+
+			//glm::vec3 blockPlacement = { streetXList[x], 0.0f, streetZList[z] };
+			//Building b = Building::generateRandomBuilding(blockPlacement, xOffset*10);
+			//buildingList.push_back(b);
+			//(streetXList[x], streetZList[z])->(streetXList[x] + xOffset*10, streetZList[z] + zOffset*10)
+		}
 	}
 
+	
 	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
+	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		
 		glUniform1i(drawType_id, 0);
@@ -322,8 +372,11 @@ int main() {
 		glfwGetCursorPos(window, &xpos, &ypos);
 		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
-
+		tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+		if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+			verticleAngle = tempAngle;
+		}
+		tempAngle = verticleAngle;
 
 		vec3 oldCameraPos(cameraPosition);
 
@@ -365,7 +418,8 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
@@ -376,11 +430,13 @@ int main() {
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
 		// Rendering. TODO: foreach loop of RawModels in scene
-		render(building);
+		//render(building);
+		for (int k = 0; k < buildingList.size(); k++){
+			render(buildingList[k]);
+		}
+		glUniform1i(drawType_id, 2);
 		render(world);
-		glUniform1i(drawType_id, 1);
-		//render(street);
-
+		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
 		}
