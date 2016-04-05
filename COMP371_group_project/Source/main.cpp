@@ -86,6 +86,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_LEFT:
+	case GLFW_KEY_A:
 		if (action == GLFW_PRESS){
 			leftKey = true;
 		}
@@ -93,6 +94,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			leftKey = false;
 		}
 	case GLFW_KEY_RIGHT:
+	case GLFW_KEY_D:
 		if (action == GLFW_PRESS){
 			rightKey = true;
 		}
@@ -101,6 +103,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_UP:
+	case GLFW_KEY_W:
 		if (action == GLFW_PRESS){
 			upKey = true;
 		}
@@ -109,6 +112,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		}
 		break;
 	case GLFW_KEY_DOWN:
+	case GLFW_KEY_S:
 		if (action == GLFW_PRESS){
 			downKey = true;
 		}
@@ -353,6 +357,7 @@ int main() {
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
+	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 		
 		//cout << 0.0f - cameraPosition.x << " " << 0.0f - cameraPosition.y << " " << 0.0f - cameraPosition.z << endl;
@@ -368,8 +373,11 @@ int main() {
 		glfwGetCursorPos(window, &xpos, &ypos);
 		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-		verticleAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
-
+		tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+		if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+			verticleAngle = tempAngle;
+		}
+		tempAngle = verticleAngle;
 		//Incrementing cameraPosition
 		if (upKey){
 			if (noclip){
