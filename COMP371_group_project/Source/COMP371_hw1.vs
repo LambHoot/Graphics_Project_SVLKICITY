@@ -1,32 +1,29 @@
-#version 130
+#version 330
 
 uniform mat4 view_matrix, model_matrix, proj_matrix;
-uniform int drawType;
-uniform vec3 camPos;
 
-in  vec3 in_Position;		//vertex position
-out vec3 out_Color;
-out float distance;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec3 in_normal;
+layout(location = 2) in vec3 vertexColor;
+
+out vec3 world_pos;
+out vec3 world_normal;
+out vec4 viewSpace;
+
+out vec3 frag_Color;
 
 void main () {
-	mat4 CTM = proj_matrix * view_matrix * model_matrix;
-	gl_Position = CTM * vec4 (in_Position, 1.0);
+	//used for lighting models
+	
+	world_pos = (model_matrix * vec4(vertexPosition, 1.0f)).xyz;
+	world_normal = normalize(mat3(model_matrix) * in_normal);
 
-	// based on position
-	//out_Color = vec3 (in_Position.x,in_Position.y,in_Position.z);
+	viewSpace = view_matrix * model_matrix * vec4(vertexPosition,1);
+	//mat4 CTM = proj_matrix * view_matrix * model_matrix;
+	gl_Position = proj_matrix * viewSpace;
 
-	if(drawType == 0){// BUILDING
-		out_Color = vec3 (1.0f, 0.0f, 0.0f);//red
-	}
-
-	if(drawType == 2){// WORLD PLANE
-		out_Color = vec3 (1.0f, 0.0f, 0.0f);//green
-	}
-	if(drawType == 3){// STREET
-		out_Color = vec3 (0.0f, 0.0f, 1.0f);//blue
-	}
-
-	vec3 distanceFromCamToPos = in_Position - camPos;
-	distance = sqrt((distanceFromCamToPos.x * distanceFromCamToPos.x) + (distanceFromCamToPos.z * distanceFromCamToPos.z));
-
+	frag_Color = vertexColor;
 }
+
+
+ 

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace glm;
 
-vector<vec3> CoinPositions, CoinIndices;
+vector<vec3> CoinPositions, CoinIndices, Coincolors, Coinnormals;
 //Constructors
 
 Coin::Coin(glm::vec3 pos)
@@ -26,6 +26,24 @@ Coin::Coin(glm::vec3 pos)
 		glm::vec3(2, 0, 1),
 		glm::vec3(1, 2, 3)
 	};
+
+	Coincolors = {
+		vec3(1,0,0),
+		vec3(1, 0, 0),
+		vec3(1, 0, 0),
+		vec3(1, 0, 0)
+	};
+
+	Coinnormals = {
+		vec3(0,0,1),
+		vec3(0, 0, 1),
+		vec3(0, 0, 1),
+		vec3(0, 0, 1)
+	};
+
+
+
+
 	Coin::bindToModel();
 	
 	mycoinPosition = pos;
@@ -39,7 +57,7 @@ Coin::~Coin()
 }
 
 void Coin::bindToModel() {
-	RawModel temp = Loader::loadToVAO(CoinPositions, CoinIndices);
+	RawModel temp = Loader::loadToVAO(CoinPositions, Coinnormals , CoinIndices, Coincolors);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
 }
@@ -64,10 +82,5 @@ void Coin::rotateToFace(Coin c, glm::vec3 point){
 	*(c.coinModel) = translate(*(c.coinModel), c.mycoinPosition);
 	*(c.coinModel) = glm::rotate(*(c.coinModel), 2.14f, glm::vec3(0.0f, 1.0f, 0.0f));
 	*(c.coinModel) = translate(*(c.coinModel), -c.mycoinPosition);
-
-	//c.CoinPositions[0] = glm::rotateY(c.CoinPositions[0], 30.14f);
-	//c.CoinPositions[1] = glm::rotateY(c.CoinPositions[1], 30.14f);
-	//c.CoinPositions[2] = glm::rotateY(c.CoinPositions[2], 30.14f);
-	//c.CoinPositions[3] = glm::rotateY(c.CoinPositions[3], 30.14f);
 
 }

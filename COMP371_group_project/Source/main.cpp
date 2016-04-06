@@ -39,9 +39,6 @@ GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
 
-GLuint drawType_id = 0;
-GLuint camPos_id = 0;
-
 
 ///Transformations
 glm::mat4 proj_matrix;
@@ -61,7 +58,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-glm::vec3 cameraPosition = glm::vec3(0, 300, -10);
+glm::vec3 cameraPosition = glm::vec3(0, 100, -10);
 glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
@@ -265,8 +262,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
-	drawType_id = glGetUniformLocation(ProgramID, "drawType");
-	camPos_id = glGetUniformLocation(ProgramID, "camPos");
 
 	return ProgramID;
 }
@@ -325,9 +320,9 @@ int main() {
 	// 10 streets will exist in each direction
 	Building building = Building(5.0f, 1.0f);
 
-	Coin coin = Coin(glm::vec3{0.0f, 300.0f, 0.0f});
-	Coin coin2 = Coin(glm::vec3{ 10.0f, 300.0f, 0.0f });
-	Coin coin3 = Coin(glm::vec3{ 20.0f, 300.0f, 0.0f });
+	Coin coin = Coin(glm::vec3{0.0f, 110.0f, 0.0f});
+	Coin coin2 = Coin(glm::vec3{ 10.0f, 110.0f, 0.0f });
+	Coin coin3 = Coin(glm::vec3{ 20.0f, 110.0f, 0.0f });
 	coinList.push_back(coin);
 	coinList.push_back(coin2);
 	coinList.push_back(coin3);
@@ -390,9 +385,6 @@ int main() {
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 
-		glUniform1i(drawType_id, 0);
-		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
 		//Getting Time data
 		currentTime = glfwGetTime();
 		deltaTime = float(currentTime - lastTime);
@@ -452,7 +444,6 @@ int main() {
 		{
 			if (Coin::isCoinTouched(coinList[j], cameraPosition))
 			{
-				cout << "touched! " << coinList.size() << " " << j << endl;
 				//remove coin
 				remove(coinList, j);
 				//increase coin count
@@ -470,7 +461,7 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
@@ -486,9 +477,8 @@ int main() {
 		for (int k = 0; k < buildingList.size(); k++){
 			render(buildingList[k]);
 		}
-		glUniform1i(drawType_id, 2);
+
 		render(world);
-		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
 		}
@@ -496,7 +486,6 @@ int main() {
 			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(*coinList[j].coinModel));
 			render(coinList[j]);
 			Coin::rotateToFace(coinList[j], cameraPosition);
-			cout << coinList[j].CoinPositions[0].x << " " << coinList[j].CoinPositions[1].x << " " << coinList[j].CoinPositions[2].x << " " << coinList[j].CoinPositions[3].x << endl;
 
 		}
 
