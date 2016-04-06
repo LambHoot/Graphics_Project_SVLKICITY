@@ -73,6 +73,7 @@
   <ItemGroup>
     <ClCompile Include="..\Source\main.cpp" />
     <ClCompile Include="Building.cpp" />
+    <ClCompile Include="Coin.cpp" />
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="RawModel.cpp" />
     <ClCompile Include="Street.cpp" />
@@ -85,6 +86,7 @@
   <ItemGroup>
     <ClInclude Include="Building.h" />
     <ClInclude Include="CImg.h" />
+    <ClInclude Include="Coin.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="RawModel.h" />
     <ClInclude Include="Street.h" />
