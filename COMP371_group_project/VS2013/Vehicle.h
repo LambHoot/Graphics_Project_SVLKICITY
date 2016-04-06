@@ -9,7 +9,7 @@ using namespace glm;
 
 class Vehicle : public RawModel {
 private:
-	vector<vec3> positions, indices;
+	vector<vec3> positions, indices, normals, colours;
 	mat4 modelMatrix;
 	Street* current_street;
 	Street* last_street;

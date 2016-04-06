@@ -39,9 +39,6 @@ GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
 
-GLuint drawType_id = 0;
-GLuint camPos_id = 0;
-
 
 ///Transformations
 glm::mat4 proj_matrix;
@@ -61,7 +58,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-glm::vec3 cameraPosition = glm::vec3(0, 300, -10);
+glm::vec3 cameraPosition = glm::vec3(0, 100, -10);
 glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
@@ -267,8 +264,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
-	drawType_id = glGetUniformLocation(ProgramID, "drawType");
-	camPos_id = glGetUniformLocation(ProgramID, "camPos");
 
 	return ProgramID;
 }
@@ -371,9 +366,6 @@ int main() {
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 
-		glUniform1i(drawType_id, 0);
-		glUniform3f(camPos_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
 		//Getting Time data
 		currentTime = glfwGetTime();
 		deltaTime = float(currentTime - lastTime);
@@ -438,7 +430,7 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
@@ -454,14 +446,11 @@ int main() {
 		for (int k = 0; k < buildingList.size(); k++){
 			render(buildingList[k]);
 		}
-		glUniform1i(drawType_id, 2);
+
 		render(world);
-		glUniform1i(drawType_id, 3);
 		for (int j = 0; j < streetList.size(); j++){
 			render(streetList[j]);
 		}
-
-		glUniform1i(drawType_id, 4);
 
 		for (unsigned j = 0; j < vehicles.size(); j++)
 		{

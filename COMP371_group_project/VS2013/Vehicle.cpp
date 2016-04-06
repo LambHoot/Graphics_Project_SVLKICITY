@@ -43,13 +43,45 @@ void Vehicle::build() {
 		vec3(5, 9, 7)
 	};
 
+	normals = {
+		glm::vec3(0.785367, 0.487923, -0.380959),
+		glm::vec3(1, 0, 0),
+		glm::vec3(0.707107, 0.701646, -0.0877058),
+		glm::vec3(0.707107, -0.171499, 0.685994),
+		glm::vec3(0, 0.371391, -0.928477),
+		glm::vec3(0, -0.992278, 0.124035),
+		glm::vec3(-0.707107, 0.707107, 0),
+		glm::vec3(-0.707107, -0.262613, 0.656532),
+		glm::vec3(-0.894427, 0.0632456, 0.442719),
+		glm::vec3(-0.894427, -0.447214, 0),
+		glm::vec3(0, -0.755454, -0.655202),
+		glm::vec3(0, -0.755454, -0.655202)
+	};
 
+	colours = {
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f),
+		glm::vec3(0.0f, 1.0f, 1.0f)
+	};
 }
 
 void Vehicle::bindToModel() {
-	RawModel temp = Loader::loadToVAO(positions, indices);
+	RawModel temp = Loader::loadToVAO(positions, normals, indices, colours);
 	this->vaoID = temp.getVAOID();
 	this->vertexCount = temp.getVertexCount();
+
+	//Loader::generateNormals(positions, indices);
+
+
 }
 
 mat4 Vehicle::getModelMatrix() {
