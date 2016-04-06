@@ -339,12 +339,6 @@ int main() {
 				}
 
 			}
-
-
-			//glm::vec3 blockPlacement = { streetXList[x], 0.0f, streetZList[z] };
-			//Building b = Building::generateRandomBuilding(blockPlacement, xOffset*10);
-			//buildingList.push_back(b);
-			//(streetXList[x], streetZList[z])->(streetXList[x] + xOffset*10, streetZList[z] + zOffset*10)
 		}
 	}
 
