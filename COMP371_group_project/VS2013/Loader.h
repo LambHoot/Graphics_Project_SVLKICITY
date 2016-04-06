@@ -22,5 +22,6 @@ public:
 
 	static RawModel loadToVAO(vector<glm::vec3> positions, vector<glm::vec3> normals, vector<glm::vec3> indices, vector<glm::vec3> colors);
 	static bool cleanUp();
+	static void updateVertices(GLuint vaoID, vector<glm::vec3> positions);
 };
 
