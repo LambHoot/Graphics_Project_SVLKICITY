@@ -93,3 +93,15 @@ bool Loader::cleanUp() {
 	glfwTerminate();
 	return true;
 }
+
+void Loader::updateVertices(GLuint vaoID, vector<glm::vec3> positions){
+	GLfloat *pos = new GLfloat[positions.size() * 3];
+	for (unsigned int i = 0; i < positions.size(); i++){
+		pos[3 * i + 0] = positions[i].x;
+		pos[3 * i + 1] = positions[i].y;
+		pos[3 * i + 2] = positions[i].z;
+	}
+	glBindVertexArray(vaoID);
+	storeDataInAttribList(0, pos, sizeof(positions)*positions.size() * point_size);
+	glBindVertexArray(0);
+}

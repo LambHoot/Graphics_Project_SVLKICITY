@@ -493,7 +493,11 @@ int main() {
 			render(streetList[j]);
 		}
 		for (int j = 0; j < coinList.size(); j++){
+			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(*coinList[j].coinModel));
 			render(coinList[j]);
+			Coin::rotateToFace(coinList[j], cameraPosition);
+			cout << coinList[j].CoinPositions[0].x << " " << coinList[j].CoinPositions[1].x << " " << coinList[j].CoinPositions[2].x << " " << coinList[j].CoinPositions[3].x << endl;
+
 		}
 
 		// Update other events like input handling

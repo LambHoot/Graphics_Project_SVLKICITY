@@ -27,6 +27,10 @@ Coin::Coin(glm::vec3 pos)
 		glm::vec3(1, 2, 3)
 	};
 	Coin::bindToModel();
+	
+	mycoinPosition = pos;
+
+	coinModel = new mat4();
 }
 
 
@@ -53,4 +57,17 @@ bool Coin::isCoinTouched(Coin c, glm::vec3 point) {
 		}
 	}
 	return false;
+}
+
+void Coin::rotateToFace(Coin c, glm::vec3 point){
+	
+	*(c.coinModel) = translate(*(c.coinModel), c.mycoinPosition);
+	*(c.coinModel) = glm::rotate(*(c.coinModel), 2.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+	*(c.coinModel) = translate(*(c.coinModel), -c.mycoinPosition);
+
+	//c.CoinPositions[0] = glm::rotateY(c.CoinPositions[0], 30.14f);
+	//c.CoinPositions[1] = glm::rotateY(c.CoinPositions[1], 30.14f);
+	//c.CoinPositions[2] = glm::rotateY(c.CoinPositions[2], 30.14f);
+	//c.CoinPositions[3] = glm::rotateY(c.CoinPositions[3], 30.14f);
+
 }
