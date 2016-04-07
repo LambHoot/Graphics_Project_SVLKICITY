@@ -28,15 +28,7 @@ void main(){
 
 	vec3 L = normalize( light_position - world_pos);
 	vec3 diffuse = vec3(1.0f, 1.0f, 0.0f) * max(0, dot(L, (normalize(world_normal))));
-	//vec3 diffuse = DiffuseLight * dot(L,out_normal);
-
-	//vec3 mycolour = frag_Color * diffuse;//frag_Color * normalize(diffuse);
 	
-	//if(mycolour.z <= 0.5 && mycolour.x <= 0.5 && mycolour.y <= 0.5)
-	//{
-	//	mycolour = vec3(1.0f, 1.0f, 1.0f);
-	//}
-
 	vec3 viewDir = normalize(viewPos - world_pos);
 	vec3 reflectDir = reflect(-L, normalize(world_normal));
 

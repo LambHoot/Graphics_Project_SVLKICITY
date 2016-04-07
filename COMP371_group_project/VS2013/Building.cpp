@@ -78,20 +78,6 @@ void Building::build(){
 				glm::vec3(3, 0, 4),
 				glm::vec3(3, 4, 7) };
 
-	 //normals = Loader::generateNormals(positions, indices);
-	 /*
-	 colors = {
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f),
-		 vec3(0.5f, 0.0f, 0.0f)
-	 };*/
-
 	 
 	 colors = {
 		 glm::vec3(
