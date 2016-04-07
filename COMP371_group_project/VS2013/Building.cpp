@@ -77,40 +77,17 @@ void Building::build(){
 				glm::vec3(3, 0, 4),
 				glm::vec3(3, 4, 7) };
 
+	 float mono = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	 vec3 monochrome = vec3(mono, mono, mono);
 	 colors = {
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX)),
-		 glm::vec3(
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
-		 static_cast <float> (rand()) / static_cast <float> (RAND_MAX))
+		 monochrome,
+		 monochrome,
+		 monochrome,
+		 monochrome,
+		 monochrome,
+		 monochrome,
+		 monochrome,
+		 monochrome
 	 };
 	 
 }

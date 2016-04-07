@@ -8,7 +8,7 @@ in vec4 viewSpace;
 in vec3 frag_Color;
 out vec3 color;
 
-const vec3 fogColor = vec3(0.2, 0.6,1.0);
+const vec3 fogColor = vec3(0.6, 0.6,0.6);
 const float FogDensity = 0.005;
 
 void main(){
