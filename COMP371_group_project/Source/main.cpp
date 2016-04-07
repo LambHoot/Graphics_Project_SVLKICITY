@@ -39,12 +39,13 @@ GLuint shader_program = 0;
 GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
-
+GLuint viewPosLoc_id = 0;
 
 ///Transformations
 glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
+
 
 // Given a 3D environment
 GLfloat point_size = 3.0f;
@@ -74,11 +75,6 @@ double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
 bool pauseCam = false;
 vector<Vehicle> vehicles;
-void loadTexture(){
-
-
-
-}
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
@@ -259,11 +255,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 
-	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
-
-	//appearing in the vertex shader.
-	glBindAttribLocation(ProgramID, 1, "in_Color");
-
 	glLinkProgram(ProgramID);
 
 	// Check the program
@@ -283,6 +274,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
+	viewPosLoc_id = glGetUniformLocation(ProgramID, "viewPos");
 
 	return ProgramID;
 }
@@ -295,11 +287,6 @@ void render(RawModel* model){
 	glBindVertexArray(0);
 }
 
-vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
-
-	return vec;
-}
-
 template <typename T>
 void remove(std::vector<T>& vec, size_t pos)
 {
@@ -310,6 +297,8 @@ void remove(std::vector<T>& vec, size_t pos)
 
 int main() {
 	initialize();
+
+	
 
 	int nbCoins = 0;
 	int nbCollectedCoins = 0;
@@ -332,16 +321,9 @@ int main() {
 
 	vector<float> streetXList;
 	vector<float> streetZList;
-
-	//vector<Building> buildingList;
-
 	vector<Coin> coinList;
 
 	// BUILDING OBJECTS!
-
-	// 10 streets will exist in each direction
-	Building building = Building(5.0f, 1.0f);
-
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
@@ -405,11 +387,17 @@ int main() {
 		vehicles.push_back(vehicle);
 	}
 	
+	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
+
+
+		
+		glUniform3f(viewPosLoc_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
 
 		//Getting Time data
 		currentTime = glfwGetTime();
@@ -486,7 +474,6 @@ int main() {
 			//DISPLAY YOU WIN!
 			pauseCam = true;
 
-
 			nbCollectedCoins = 0;
 		}
 
@@ -501,7 +488,6 @@ int main() {
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.6f, 1.0f, 1.0f);
-		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);

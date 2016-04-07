@@ -59,10 +59,10 @@ RawModel Loader::loadToVAO(vector <glm::vec3> positions, vector <glm::vec3> norm
 		ind[3 * j + 2] = indices[j].z;
 	}
 
-	for (unsigned int j = 0; j < colors.size(); j++){
-		col[3 * j + 0] = colors[j].x;
-		col[3 * j + 1] = colors[j].y;
-		col[3 * j + 2] = colors[j].z;
+	for (unsigned int j = 0; j < normals.size(); j++){
+		nor[3 * j + 0] = normals[j].x;
+		nor[3 * j + 1] = normals[j].y;
+		nor[3 * j + 2] = normals[j].z;
 	}
 
 	for (unsigned int j = 0; j < colors.size(); j++){
@@ -80,7 +80,7 @@ RawModel Loader::loadToVAO(GLfloat positions[], int positions_length, GLfloat no
 	glBindVertexArray(vao);
 	bindIndicesBuffer(indices, sizeof(indices)*indices_length);
 	storeDataInAttribList(0, positions, sizeof(positions)*positions_length);
-	storeDataInAttribList(1, normals, sizeof(positions)*positions_length);
+	storeDataInAttribList(1, normals, sizeof(normals)*normals_length);
 	storeDataInAttribList(2, colors, sizeof(colors)*colors_length);
 	glBindVertexArray(0);
 
@@ -135,7 +135,21 @@ vector < glm::vec3> Loader::generateNormals(vector<glm::vec3> vertices, vector<g
 		// Find all Shared Normals
 		for (unsigned int j = 0; j < indices.size(); j++) {
 			if (indices[j].x == i || indices[j].y == i || indices[j].z == i){
-				shared.push_back(triangleNormals[j]);
+				bool found = false;
+
+				for (unsigned int k = 0; k < shared.size(); k++)
+				{
+					if (shared[k] == triangleNormals[j])
+					{
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					shared.push_back(triangleNormals[j]);
+				}
 			}
 		}
 
@@ -143,6 +157,9 @@ vector < glm::vec3> Loader::generateNormals(vector<glm::vec3> vertices, vector<g
 		for (glm::vec3 s : shared){
 			norm += s;
 		}
+
+		norm / (float)shared.size();
+
 		glm::vec3 normed = glm::normalize(norm);
 		cout << "glm::vec3(" << normed.x << ", " << normed.y << ", " << normed.z << ")" << endl;
 		normals.push_back(glm::normalize(norm));

@@ -19,6 +19,8 @@ using namespace glm;
 class Street : public RawModel
 {
 private:
+	const vec3 color = { 0.5, 0.5, 0.5 };
+
 	const float TOP_PADDING = 0.5f;
 public:
 	Street(glm::vec3 topLeft, glm::vec3 bottomRight);
