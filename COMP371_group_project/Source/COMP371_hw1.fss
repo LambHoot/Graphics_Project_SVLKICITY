@@ -14,7 +14,7 @@ in vec3 InterNormal;
 
 out vec4 color;
 
-const vec3 fogColor = vec3(0.6, 0.6,0.6);
+const vec3 fogColor = vec3(0.0, 0.0,0.0);
 const float FogDensity = 0.005;
 
 const vec3 DiffuseLight = vec3(0.15, 0.15, 0.15);

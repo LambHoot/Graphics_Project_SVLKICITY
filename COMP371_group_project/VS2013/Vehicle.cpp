@@ -68,6 +68,9 @@ void Vehicle::build() {
 		static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
 		static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
 		);
+
+	mycolour = vec3(1.0f,0.0f,0.0f);
+
 	colours = {
 		mycolour,
 		mycolour,
