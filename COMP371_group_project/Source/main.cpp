@@ -74,11 +74,6 @@ double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
 bool pauseCam = false;
 vector<Vehicle> vehicles;
-void loadTexture(){
-
-
-
-}
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
@@ -259,8 +254,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 
-	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
-
 	glLinkProgram(ProgramID);
 
 	// Check the program
@@ -326,16 +319,9 @@ int main() {
 
 	vector<float> streetXList;
 	vector<float> streetZList;
-
-	//vector<Building> buildingList;
-
 	vector<Coin> coinList;
 
 	// BUILDING OBJECTS!
-
-	// 10 streets will exist in each direction
-	Building building = Building(5.0f, 1.0f);
-
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
@@ -480,7 +466,6 @@ int main() {
 			//DISPLAY YOU WIN!
 			pauseCam = true;
 
-
 			nbCollectedCoins = 0;
 		}
 
@@ -495,7 +480,6 @@ int main() {
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.6f, 1.0f, 1.0f);
-		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
