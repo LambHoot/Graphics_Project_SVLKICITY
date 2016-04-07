@@ -474,12 +474,14 @@ int main() {
 		}
 
 		bool buildingHit = false;
-		for (int j = 0; j < models.size(); j++)
-		{
-			if (!models[j]->isPointLegal(cameraPosition))
+		if (!noclip){
+			for (int j = 0; j < models.size(); j++)
 			{
-				buildingHit = true;
-				break;
+				if (!models[j]->isPointLegal(cameraPosition))
+				{
+					buildingHit = true;
+					break;
+				}
 			}
 		}
 
@@ -527,7 +529,7 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.2f, 0.6f, 1.0f, 1.0f);
+		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
@@ -557,6 +559,7 @@ int main() {
 
 		}
 	
+		glUniform1i(transparent_factor_id, 2);
 		for (unsigned j = 0; j < vehicles.size(); j++)
 		{
 			vehicles[j].tick();
