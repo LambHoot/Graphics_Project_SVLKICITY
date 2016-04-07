@@ -11,9 +11,9 @@ vector<vec3> CoinPositions, CoinIndices, Coincolors, Coinnormals;
 Coin::Coin(glm::vec3 pos)
 {
 	//creates a coin (2D square 4.0fx4.0f) at this position
-	glm::vec3 topLeft = { pos.x - 2.0f, pos.y + 10.0f, pos.z };
+	glm::vec3 topLeft = { pos.x - 2.0f, pos.y + 8.0f, pos.z };
 	glm::vec3 bottomLeft = { pos.x - 2.0f, pos.y + 6.0f, pos.z };
-	glm::vec3 topRight = { pos.x + 2.0f, pos.y + 10.0f, pos.z };
+	glm::vec3 topRight = { pos.x + 2.0f, pos.y + 8.0f, pos.z };
 	glm::vec3 bottomRight = { pos.x + 2.0f, pos.y + 6.0f, pos.z };
 
 	CoinPositions = {
@@ -28,10 +28,10 @@ Coin::Coin(glm::vec3 pos)
 	};
 
 	Coincolors = {
-		vec3(0,0,1),
-		vec3(0, 0, 1),
-		vec3(0, 0, 1),
-		vec3(0, 0, 1)
+		vec3(0.6, 1, 0.6),
+		vec3(0.3, 0.7, 0.3),
+		vec3(0, 0.7, 0),
+		vec3(0, 0.7, 0)
 	};
 
 	Coinnormals = {

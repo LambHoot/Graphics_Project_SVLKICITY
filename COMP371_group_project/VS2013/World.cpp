@@ -41,9 +41,9 @@ void World::loadFloor(glm::vec3 fl, glm::vec3 br){
 	for (unsigned int i = 0; i < Worldpositions.size(); i++){
 		GLfloat monochrome = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		Worldcolors.push_back(glm::vec3(
-			monochrome,
-			monochrome,
-			monochrome)
+			0.5,
+			0.5,
+			0.5)
 			);
 	}
 	

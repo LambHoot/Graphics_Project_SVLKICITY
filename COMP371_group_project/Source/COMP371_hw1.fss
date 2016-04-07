@@ -1,20 +1,43 @@
 #version 330 core
 
+uniform vec3 viewPos;
+
 //from vertex shader
 in vec3 world_pos;
 in vec3 world_normal;
 in vec4 viewSpace;
+uniform int transparent_factor;
 
 in vec3 frag_Color;
-out vec3 color;
+in vec3 out_normal;
+in vec3 InterNormal;
+
+out vec4 color;
 
 const vec3 fogColor = vec3(0.6, 0.6,0.6);
 const float FogDensity = 0.005;
 
+const vec3 DiffuseLight = vec3(0.15, 0.05, 0.0);
+const vec3 light_position = vec3(500.0f, 1000.0f, 500.0f);
+const vec3 light_colour = vec3(1.0f, 1.0f, 0.0f);
+
+const float specularStrength = 0.5f;
+
 void main(){
 	vec3 finalColor = vec3(0, 0, 0);
 
-	vec3 lightColor = frag_Color;
+	vec3 L = normalize( light_position - world_pos);
+	vec3 diffuse = vec3(1.0f, 1.0f, 0.0f) * max(0, dot(L, (normalize(world_normal))));
+	
+	vec3 viewDir = normalize(viewPos - world_pos);
+	vec3 reflectDir = reflect(-L, normalize(world_normal));
+
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * light_colour; 
+
+	vec3 lightColor = frag_Color * (diffuse + specular);//vec3(max(0,out_normal.x + 1.0f), max(0,out_normal.y + 0.5f), max(0,out_normal.z + 0.5f));
+	
+
 
 	//distance
 	float dist = 0;
@@ -28,7 +51,11 @@ void main(){
  
 	//if you inverse color in glsl mix function you have to
 	//put 1.0 - fogFactor
-	finalColor = mix(fogColor, frag_Color, fogFactor);
-
-	color = finalColor;
+	if(transparent_factor == 0){
+		finalColor = mix(fogColor, frag_Color, fogFactor);
+		color = vec4(finalColor, 1.0);
+	}
+	if(transparent_factor == 1){
+		color = vec4(frag_Color, 0.25);
+	}
 }
