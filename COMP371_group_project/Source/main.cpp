@@ -39,6 +39,7 @@ GLuint shader_program = 0;
 GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
+GLuint transparent_factor_id = 0;
 
 
 ///Transformations
@@ -54,6 +55,7 @@ GLuint WIDTH = 800;
 GLuint HEIGHT = 800;
 
 vector<RawModel*> models;
+vector<RawModel*> winBuildings;
 
 void window_resize_callback(GLFWwindow* window, int width, int height){
 	WIDTH = width;
@@ -72,7 +74,7 @@ int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
-bool pauseCam = false;
+bool pauseCam = false, win = false;
 vector<Vehicle> vehicles;
 void loadTexture(){
 
@@ -136,6 +138,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		if (action == GLFW_PRESS){
 			noclip = !noclip;
 		}
+		break;
 	case GLFW_KEY_T:
 		if (action == GLFW_PRESS){
 			pauseCam = false;
@@ -143,6 +146,7 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 			rightKey = false;
 			upKey = false;
 			downKey = false;
+			win = true;
 		}
 	default: break;
 	}
@@ -183,6 +187,9 @@ bool initialize() {
 	/// Enable the depth test i.e. draw a pixel if it's closer to the viewer
 	glEnable(GL_DEPTH_TEST); /// Enable depth-testing
 	glDepthFunc(GL_LESS);	/// The type of testing i.e. a smaller value as "closer"
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//Seed random number generation
 	srand(static_cast <unsigned> (time(0)));
@@ -283,6 +290,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
+	transparent_factor_id = glGetUniformLocation(ProgramID, "transparent_factor");
 
 	return ProgramID;
 }
@@ -338,12 +346,11 @@ int main() {
 	vector<Coin> coinList;
 
 	// BUILDING OBJECTS!
+	vector<Building> SVbuilding;
 
 	// 10 streets will exist in each direction
-	Building building = Building(5.0f, 1.0f);
-
 	World world = World(farLeftMain, bottomRightMain);
-	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
+	Street street = Street({ farLeftMain.x, 1.0f, farLeftMain.z }, { farLeftMain.x + xOffset, 1.0f, bottomRightMain.z });
 
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
@@ -384,6 +391,15 @@ int main() {
 						thisBlockBuildings.push_back(*b);
 						//buildingList.push_back(b);
 						models.push_back(b);
+						if (SVbuilding.size() == 0){
+							int choice = 0 + static_cast <int> (rand()) / (static_cast <int> (RAND_MAX / (99 - 0)));
+							if (choice == 50){
+								SVbuilding.push_back(*b);
+							}
+							else if ((x == streetXList.size() - 1) && (z == streetZList.size() - 1)){
+								SVbuilding.push_back(*b);
+							}
+						}
 						break;
 					}
 					else{
@@ -482,14 +498,22 @@ int main() {
 		}
 
 		//WIN GAME!
-		if (nbCollectedCoins == nbCoins){
+		if (win || nbCollectedCoins == nbCoins){
 			//DISPLAY YOU WIN!
-			pauseCam = true;
-
-
+			//pauseCam = true;
+			vec3 winColor = vec3(1, 1, 0);
+			//Building winBuilding = Building(10000000.0f, xOffset*9.0f, zOffset*9.0f, vec3((bottomRightMain.x / 10) + (xOffset / 2), -1, (farLeftMain.z/10)+(zOffset / 2)), winColor);
+			Building* winBuilding = new Building(2000.0f, SVbuilding[0].width + 0.5, SVbuilding[0].depth + 0.5, SVbuilding[0].position, winColor);
+			winBuildings.push_back(winBuilding);
 			nbCollectedCoins = 0;
+			win = false;
 		}
-
+		if (winBuildings.size() > 0){
+			if (!winBuildings[0]->isPointLegal(cameraPosition)){
+				cout << "You WIN!" << endl;
+				break;
+			}
+		}
 
 		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
 		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
@@ -510,12 +534,17 @@ int main() {
 		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, value_ptr(proj_matrix));
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
+		glUniform1i(transparent_factor_id, 0);
 
 		// Render all models
 		for (int k = 0; k < models.size(); k++){
 			render(models[k]);
 		}
-
+		glUniform1i(transparent_factor_id, 1);
+		for (int l = 0; l < winBuildings.size(); l++){
+			render(winBuildings[l]);
+		}
+		glUniform1i(transparent_factor_id, 0);
 		render(&world);
 
 		for (int j = 0; j < coinList.size(); j++){
@@ -542,7 +571,7 @@ int main() {
 		//Setting lastTime
 		lastTime = currentTime;
 	}
-
+	system("pause");
 	Loader::cleanUp();
 	return 0;
 }

@@ -5,8 +5,10 @@ in vec3 world_pos;
 in vec3 world_normal;
 in vec4 viewSpace;
 
+uniform int transparent_factor;
+
 in vec3 frag_Color;
-out vec3 color;
+out vec4 color;
 
 const vec3 fogColor = vec3(0.2, 0.6,1.0);
 const float FogDensity = 0.005;
@@ -28,7 +30,11 @@ void main(){
  
 	//if you inverse color in glsl mix function you have to
 	//put 1.0 - fogFactor
-	finalColor = mix(fogColor, frag_Color, fogFactor);
-
-	color = finalColor;
+	if(transparent_factor == 0){
+		finalColor = mix(fogColor, frag_Color, fogFactor);
+		color = vec4(finalColor, 1.0);
+	}
+	if(transparent_factor == 1){
+		color = vec4(frag_Color, 0.25);
+	}
 }
