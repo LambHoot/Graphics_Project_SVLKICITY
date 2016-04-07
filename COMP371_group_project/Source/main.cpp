@@ -474,12 +474,14 @@ int main() {
 		}
 
 		bool buildingHit = false;
-		for (int j = 0; j < models.size(); j++)
-		{
-			if (!models[j]->isPointLegal(cameraPosition))
+		if (!noclip){
+			for (int j = 0; j < models.size(); j++)
 			{
-				buildingHit = true;
-				break;
+				if (!models[j]->isPointLegal(cameraPosition))
+				{
+					buildingHit = true;
+					break;
+				}
 			}
 		}
 
@@ -557,6 +559,7 @@ int main() {
 
 		}
 	
+		glUniform1i(transparent_factor_id, 2);
 		for (unsigned j = 0; j < vehicles.size(); j++)
 		{
 			vehicles[j].tick();
