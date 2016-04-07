@@ -274,7 +274,7 @@ void Vehicle::assignStreet(vector<Street>* streets) {
 	}
 	else
 	{
-		modelMatrix = translate(mat4(), vec3(street.bottomRight.x, HOVER, street.bottomRight.z + width / 2.0f));
+		modelMatrix = translate(mat4(), vec3(street.bottomRight.x, HOVER, street.bottomRight.z - width / 2.0f));
 		modelMatrix = glm::rotate(modelMatrix, -3.14f / 2.0f, vec3(0.0f, 0.1f, 0.0f));
 		endRotation = -3.14f / 2.0f;
 		//mycolour = vec3(1.0f, 1.0f, 0.0f);

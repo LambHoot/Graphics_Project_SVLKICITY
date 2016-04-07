@@ -47,7 +47,10 @@
     <ClCompile Include="Street.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vehicle.cpp">
+    <ClCompile Include="Coin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+<ClCompile Include="Vehicle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +71,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Street.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vehicle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
