@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 uniform mat4 view_matrix, model_matrix, proj_matrix;
 

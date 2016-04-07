@@ -28,5 +28,8 @@ public:
 	void bindToModel();
 
 	bool isPointLegal(vec3 point) override;
+
+	vec3 topLeft;
+	vec3 bottomRight;
 };
 

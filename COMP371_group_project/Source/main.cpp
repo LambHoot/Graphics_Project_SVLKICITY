@@ -23,6 +23,7 @@
 #include "../VS2013/Building.h"
 #include "../VS2013/World.h"
 #include "../VS2013/Street.h"
+#include "../VS2013/Vehicle.h"
 #include "../VS2013/Coin.h"
 
 using namespace std;
@@ -66,11 +67,13 @@ glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 50.0f;
+float speed = 100.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
+
+vector<Vehicle> vehicles;
 
 void loadTexture(){
 
@@ -375,7 +378,15 @@ int main() {
 		}
 	}
 
-	
+	for (int i = 0; i < 100; i++)
+	{
+		Vehicle vehicle;
+		vehicle.assignStreet(&streetList);
+		vehicle.build();
+		vehicle.bindToModel();
+		
+		vehicles.push_back(vehicle);
+	}
 	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
@@ -482,6 +493,14 @@ int main() {
 			render(&coinList[j]);
 			Coin::rotateToFace(coinList[j], cameraPosition);
 
+		}
+	
+		for (unsigned j = 0; j < vehicles.size(); j++)
+		{
+			vehicles[j].tick();
+			mat4 vecModel(vehicles[j].getModelMatrix());
+			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(vecModel));
+			render(&vehicles[j]);
 		}
 
 		// Update other events like input handling

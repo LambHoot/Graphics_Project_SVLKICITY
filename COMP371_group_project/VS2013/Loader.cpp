@@ -148,5 +148,7 @@ vector < glm::vec3> Loader::generateNormals(vector<glm::vec3> vertices, vector<g
 		normals.push_back(glm::normalize(norm));
 	}
 
+	system("pause");
+
 	return normals;
 }
