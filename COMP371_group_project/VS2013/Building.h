@@ -25,6 +25,7 @@ private:
 	const float TOP_COLLISION_PADDING = 0.5f;
 
 	void build();
+	void build(vec3 passColor);
 	void sendToPosition();
 	void bindToModel();
 
@@ -32,8 +33,11 @@ public:
 	float height;
 	float width;
 	float depth;
+	vector<glm::vec3> colors;
+	vector<glm::vec3> positions;
 	glm::vec3 position;
 	Building(float h, float w, float d, glm::vec3 position);
+	Building(float h, float w, float d, glm::vec3 position, vec3 passedColor);
 	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
 	static Building* generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block, float heightBoost);
