@@ -8,8 +8,8 @@ in vec4 viewSpace;
 in vec3 frag_Color;
 out vec3 color;
 
-const vec3 fogColor = vec3(0.5, 0.5,0.5);
-const float FogDensity = 0.001;
+const vec3 fogColor = vec3(0.2, 0.6,1.0);
+const float FogDensity = 0.005;
 
 void main(){
 	vec3 finalColor = vec3(0, 0, 0);
@@ -22,8 +22,9 @@ void main(){
 	//range based
 	dist = length(viewSpace);
 
-	fogFactor = 1.0 /exp(dist * FogDensity);
-	fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+	fogFactor = 1.0 /exp( (dist * FogDensity)* (dist * FogDensity));
+   	fogFactor = clamp( fogFactor, 0.0, 1.0 );
  
 	//if you inverse color in glsl mix function you have to
 	//put 1.0 - fogFactor
