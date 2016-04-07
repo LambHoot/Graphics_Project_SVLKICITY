@@ -39,12 +39,13 @@ GLuint shader_program = 0;
 GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
-
+GLuint viewPosLoc_id = 0;
 
 ///Transformations
 glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
+
 
 // Given a 3D environment
 GLfloat point_size = 3.0f;
@@ -273,6 +274,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
+	viewPosLoc_id = glGetUniformLocation(ProgramID, "viewPos");
 
 	return ProgramID;
 }
@@ -385,11 +387,17 @@ int main() {
 		vehicles.push_back(vehicle);
 	}
 	
+	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
 	noclip = false;
 	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
+
+
+		
+		glUniform3f(viewPosLoc_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
 
 		//Getting Time data
 		currentTime = glfwGetTime();

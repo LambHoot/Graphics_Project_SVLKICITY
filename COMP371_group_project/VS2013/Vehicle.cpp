@@ -49,7 +49,7 @@ void Vehicle::build() {
 	};
 
 	normals = {
-		glm::vec3(0.785367, 0.487923, -0.380959),
+		glm::vec3(0.535666, 0.665584, -0.519672),
 		glm::vec3(1, 0, 0),
 		glm::vec3(0.707107, 0.701646, -0.0877058),
 		glm::vec3(0.707107, -0.171499, 0.685994),
@@ -57,8 +57,8 @@ void Vehicle::build() {
 		glm::vec3(0, -0.992278, 0.124035),
 		glm::vec3(-0.707107, 0.707107, 0),
 		glm::vec3(-0.707107, -0.262613, 0.656532),
-		glm::vec3(-0.894427, 0.0632456, 0.442719),
-		glm::vec3(-0.894427, -0.447214, 0),
+		glm::vec3(-0.707107, 0.1, 0.7),
+		glm::vec3(-0.707107, -0.707107, 0),
 		glm::vec3(0, -0.755454, -0.655202),
 		glm::vec3(0, -0.755454, -0.655202)
 	};
@@ -82,6 +82,8 @@ void Vehicle::build() {
 		mycolour,
 		mycolour
 	};
+
+	//normals = Loader::generateNormals(positions, indices);
 }
 
 void Vehicle::bindToModel() {
