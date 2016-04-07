@@ -9,7 +9,7 @@ in vec3 frag_Color;
 out vec3 color;
 
 const vec3 fogColor = vec3(0.5, 0.5,0.5);
-const float FogDensity = 0.01;
+const float FogDensity = 0.001;
 
 void main(){
 	vec3 finalColor = vec3(0, 0, 0);

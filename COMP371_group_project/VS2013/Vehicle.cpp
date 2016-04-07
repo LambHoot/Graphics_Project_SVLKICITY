@@ -2,6 +2,11 @@
 #include "Loader.h"
 
 void Vehicle::build() {
+
+	float myrand = rand() % 10;
+	myspeed = (myrand - 5.0f) / 100;
+
+
 	positions = {
 		vec3(0.5f, 0.0f, 0.0f), //Front	Left 0
 		vec3(-0.5f, 0.0f, 0.0f), //Front	Right 1
@@ -58,19 +63,24 @@ void Vehicle::build() {
 		glm::vec3(0, -0.755454, -0.655202)
 	};
 
+	mycolour = vec3(
+		static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		static_cast <float> (rand()) / static_cast <float> (RAND_MAX),
+		static_cast <float> (rand()) / static_cast <float> (RAND_MAX)
+		);
 	colours = {
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f),
-		glm::vec3(0.0f, 1.0f, 1.0f)
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour, 
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour,
+		mycolour
 	};
 }
 
@@ -89,16 +99,63 @@ mat4 Vehicle::getModelMatrix() {
 }
 
 void Vehicle::tick() {
-	modelMatrix = translate(modelMatrix, vec3(0.0f, 0.0f, -0.001f));
+
+	
 
 	vec3 position(modelMatrix[3]);
+
+	if (position.x < -500.0f || position.x > 500.0f || position.z < -500.0f || position.z > 500.0f)
+	{
+		assignStreet(streets);
+	}
+
+	float cos = modelMatrix[2][2];
+	float sin = modelMatrix[1][2];
+
+	if (!(targetRotation + 0.01 > currentRotation && targetRotation - 0.01 < currentRotation))
+	{
+		if (targetRotation < currentRotation)
+		{
+			currentRotation -= 0.01;
+		}
+		else
+		{
+			currentRotation += 0.01;
+		}
+		
+		modelMatrix = rotate(oldModelMatrix, currentRotation, vec3(0.0f, 1.0f, 0.0f));
+		rotating = true;
+		return;
+	}
+	else if (rotating)
+	{
+		rotating = false;
+		modelMatrix = rotate(oldModelMatrix, targetRotation, vec3(0.0f, 1.0f, 0.0f));
+	}
+
+	modelMatrix = translate(modelMatrix, vec3(0.0f, 0.0f, -0.1f + myspeed));
+
+	if (mytick < 10)
+	{
+		mytick++;
+	}
+
+	mytick = 0;
+
+	int turnDescision = rand() % 3;
 
 	if (horizontal)
 	{
 		for (unsigned i = 0; i < streets->size(); i++){
 			Street test = streets->at(i);
-			if (current_street != &streets->at(i) && last_street != &streets->at(i) && test.topLeft.z < position.z && test.bottomRight.z > position.z)
+			if (current_street != &streets->at(i) && last_street != &streets->at(i) && test.topLeft.z + 4.9f < position.z && test.bottomRight.z - 4.9f > position.z)
 			{
+				if (last_street == nullptr || turnDescision == 0)
+				{
+					last_street = &streets->at(i);
+					return;
+				}
+
 				float width = test.bottomRight.z - test.topLeft.z;
 
 				if (abs(width) > 20)
@@ -106,11 +163,25 @@ void Vehicle::tick() {
 					continue;
 				}
 
-				modelMatrix = translate(mat4(), vec3(position.x, 0.5f, test.topLeft.z + width / 2));
-				modelMatrix = glm::rotate(modelMatrix, -3.14f / 2.0f, vec3(0.0f, 0.1f, 0.0f));
-				modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
+				modelMatrix = translate(mat4(), vec3(position.x, HOVER, test.topLeft.z + width / 2));
+				modelMatrix = glm::rotate(modelMatrix, endRotation, vec3(0.0f, 0.1f, 0.0f));
+				//modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
 				horizontal = false;
 
+				if (turnDescision == 1)
+				{
+					targetRotation = 3.14f / 2.0f;
+					currentRotation = 0;
+					endRotation = -3.14f / 2.0f;
+				}
+				else
+				{
+					targetRotation = -3.14f / 2.0f;
+					currentRotation = 0;
+					endRotation = 3.14f / 2.0f;
+				}
+
+				oldModelMatrix = modelMatrix;
 				last_street = current_street;
 				current_street = &streets->at(i);
 				break;
@@ -122,8 +193,15 @@ void Vehicle::tick() {
 		for (unsigned i = 0; i < streets->size(); i++){
 			Street test = streets->at(i);
 
-			if (current_street != &streets->at(i) && last_street != &streets->at(i) && test.topLeft.x < position.x && test.bottomRight.x > position.x)
+			if (current_street != &streets->at(i) && last_street != &streets->at(i) && test.topLeft.x + 4.9f < position.x && test.bottomRight.x - 4.9f > position.x)
 			{
+				
+				if (last_street == nullptr || turnDescision == 0)
+				{
+					last_street = &streets->at(i);
+					return;
+				}
+
 				float width = test.bottomRight.x - test.topLeft.x;
 
 				if (abs(width) > 20)
@@ -131,9 +209,28 @@ void Vehicle::tick() {
 					continue;
 				}
 
-				modelMatrix = translate(mat4(), vec3(test.bottomRight.x - width / 2, 0.5f, position.z));
-				modelMatrix = glm::rotate(modelMatrix, -3.14f, vec3(0.0f, 0.1f, 0.0f));
-				modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
+				modelMatrix = translate(mat4(), vec3(test.bottomRight.x - width / 2, HOVER, position.z));
+				modelMatrix = glm::rotate(modelMatrix, endRotation, vec3(0.0f, 0.1f, 0.0f));
+				
+				rotating = true;
+
+				//modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
+				oldModelMatrix = modelMatrix;
+				
+				if (turnDescision == 1)
+				{
+					currentRotation = 0;
+					targetRotation = -3.14f / 2.0f;
+					endRotation = 3.14f;
+				}
+				else
+				{
+					currentRotation = 0;
+					targetRotation = 3.14f / 2.0f;
+					endRotation = -3.14f;
+				}
+
+
 				horizontal = true;
 
 				last_street = current_street;
@@ -170,17 +267,21 @@ void Vehicle::assignStreet(vector<Street>* streets) {
 
 	if (horizontal)
 	{
-		modelMatrix = translate(mat4(), vec3(street.bottomRight.x - width / 2.0f, 0.5f, street.bottomRight.z));
-		modelMatrix = glm::rotate(modelMatrix, -3.14f, vec3(0.0f, 0.1f, 0.0f));
+		modelMatrix = translate(mat4(), vec3(street.bottomRight.x - width / 2.0f, HOVER, street.bottomRight.z));
+		modelMatrix = glm::rotate(modelMatrix, 3.14f, vec3(0.0f, 0.1f, 0.0f));
+		endRotation = 3.14f;
+		//mycolour = vec3(1.0f, 0.0f, 0.0f);
 	}
 	else
 	{
-		modelMatrix = translate(mat4(), vec3(street.bottomRight.x, 0.5f, street.bottomRight.z + width / 2.0f));
+		modelMatrix = translate(mat4(), vec3(street.bottomRight.x, HOVER, street.bottomRight.z + width / 2.0f));
 		modelMatrix = glm::rotate(modelMatrix, -3.14f / 2.0f, vec3(0.0f, 0.1f, 0.0f));
+		endRotation = -3.14f / 2.0f;
+		//mycolour = vec3(1.0f, 1.0f, 0.0f);
 	}
 	
 
-	modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
+	//modelMatrix = scale(modelMatrix, vec3(100, 100, 100));
 
 	
 }

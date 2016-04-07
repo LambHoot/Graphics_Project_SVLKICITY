@@ -351,12 +351,13 @@ int main() {
 		}
 	}
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		Vehicle vehicle;
+		vehicle.assignStreet(&streetList);
 		vehicle.build();
 		vehicle.bindToModel();
-		vehicle.assignStreet(&streetList);
+		
 		vehicles.push_back(vehicle);
 	}
 	
