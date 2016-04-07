@@ -261,9 +261,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 
 	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
 
-	//appearing in the vertex shader.
-	glBindAttribLocation(ProgramID, 1, "in_Color");
-
 	glLinkProgram(ProgramID);
 
 	// Check the program
@@ -295,11 +292,6 @@ void render(RawModel* model){
 	glBindVertexArray(0);
 }
 
-vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
-
-	return vec;
-}
-
 template <typename T>
 void remove(std::vector<T>& vec, size_t pos)
 {
@@ -310,6 +302,8 @@ void remove(std::vector<T>& vec, size_t pos)
 
 int main() {
 	initialize();
+
+	
 
 	int nbCoins = 0;
 	int nbCollectedCoins = 0;
