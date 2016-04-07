@@ -84,6 +84,7 @@
     <None Include="..\Source\COMP371_hw1.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ThirdParty\freetype\internal\autohint.h" />
     <ClInclude Include="Building.h" />
     <ClInclude Include="CImg.h" />
     <ClInclude Include="Coin.h" />

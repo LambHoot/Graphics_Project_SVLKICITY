@@ -28,10 +28,10 @@ Coin::Coin(glm::vec3 pos)
 	};
 
 	Coincolors = {
-		vec3(1,0,0),
-		vec3(1, 0, 0),
-		vec3(1, 0, 0),
-		vec3(1, 0, 0)
+		vec3(0,0,1),
+		vec3(0, 0, 1),
+		vec3(0, 0, 1),
+		vec3(0, 0, 1)
 	};
 
 	Coinnormals = {
@@ -63,7 +63,7 @@ void Coin::bindToModel() {
 }
 
 bool Coin::isCoinTouched(Coin c, glm::vec3 point) {
-	float hitBoxPadding = 2.0f;
+	float hitBoxPadding = 4.0f;
 	//between its x values
 	if (((point.x > c.CoinPositions[0].x - hitBoxPadding) && (point.x < c.CoinPositions[2].x + hitBoxPadding))){
 		//between its y values
@@ -77,10 +77,11 @@ bool Coin::isCoinTouched(Coin c, glm::vec3 point) {
 	return false;
 }
 
-void Coin::rotateToFace(Coin c, glm::vec3 point){
-	
+void Coin::rotateToFace(Coin c, glm::vec3 point, vec3 camRight){
+	vec3 up = vec3(0.0f, 1.0f, 0.0f);
+	float angle = 0.1f;
 	*(c.coinModel) = translate(*(c.coinModel), c.mycoinPosition);
-	*(c.coinModel) = glm::rotate(*(c.coinModel), 2.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+	*(c.coinModel) = rotate(*(c.coinModel), angle, up);
 	*(c.coinModel) = translate(*(c.coinModel), -c.mycoinPosition);
 
 }
