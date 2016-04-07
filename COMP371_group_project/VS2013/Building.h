@@ -40,7 +40,7 @@ public:
 	Building(float h, float w, float d, glm::vec3 position, vec3 passedColor);
 	Building(float h, float w, glm::vec3 position);
 	Building(float h, float w);
-	static Building* generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block);
+	static Building* generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block, float heightBoost);
 	static bool checkIfConflict(Building build, vector<Building> buildList, float s1, float s2, float xOff, float zOff);
 	bool Building::isBuildingPointLegal(glm::vec3 point);
 	~Building();
