@@ -23,6 +23,7 @@
 #include "../VS2013/Building.h"
 #include "../VS2013/World.h"
 #include "../VS2013/Street.h"
+#include "../VS2013/Vehicle.h"
 #include "../VS2013/Coin.h"
 
 using namespace std;
@@ -51,6 +52,9 @@ GLfloat point_size = 3.0f;
 //Window resize
 GLuint WIDTH = 800;
 GLuint HEIGHT = 800;
+
+vector<RawModel*> models;
+
 void window_resize_callback(GLFWwindow* window, int width, int height){
 	WIDTH = width;
 	HEIGHT = height;
@@ -63,13 +67,13 @@ glm::vec3 direction, Vright, up;
 float horizontalAngle = 0.0f;
 float verticleAngle = 0.0f;
 float initialFoV = 45.0f;
-float speed = 50.0f;
+float speed = 100.0f;
 int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
 bool pauseCam = false;
-
+vector<Vehicle> vehicles;
 void loadTexture(){
 
 
@@ -283,15 +287,16 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	return ProgramID;
 }
 
-void render(RawModel model){
-	glBindVertexArray(model.getVAOID());
+void render(RawModel* model){
+	glBindVertexArray(model->getVAOID());
 	glEnableVertexAttribArray(0);
-	glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, model->getVertexCount(), GL_UNSIGNED_INT, (void*)0);
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
 }
 
 vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
+
 	return vec;
 }
 
@@ -302,7 +307,6 @@ void remove(std::vector<T>& vec, size_t pos)
 	std::advance(it, pos);
 	vec.erase(it);
 }
-
 
 int main() {
 	initialize();
@@ -329,7 +333,7 @@ int main() {
 	vector<float> streetXList;
 	vector<float> streetZList;
 
-	vector<Building> buildingList;
+	//vector<Building> buildingList;
 
 	vector<Coin> coinList;
 
@@ -343,8 +347,9 @@ int main() {
 
 	//Pushing x axis streets
 	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
-		Street s = Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
-		streetList.push_back(s);
+		Street* s = new Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
+		streetList.push_back(*s);
+		models.push_back(s);
 		streetXList.push_back(i + xOffset);
 		Coin c = Coin(vec3{ i + (xOffset / 2.0f), 0.0f, farLeftMain.z + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.z - farLeftMain.z))) });
 		coinList.push_back(c);
@@ -352,8 +357,9 @@ int main() {
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
-		Street s = Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
-		streetList.push_back(s);
+		Street* s = new Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
+		streetList.push_back(*s);
+		models.push_back(s);
 		streetZList.push_back(j + zOffset);
 		Coin c = Coin(vec3{ farLeftMain.x + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.x - farLeftMain.x))), 0.0f, j + (zOffset / 2.0f) });
 		coinList.push_back(c);
@@ -371,12 +377,13 @@ int main() {
 				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
 				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
 				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
-				Building b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) });
+				Building* b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) });
 				int nbFailures = 0;
 				while (nbFailures < 10){
-					if (Building::checkIfConflict(b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
-						thisBlockBuildings.push_back(b);
-						buildingList.push_back(b);
+					if (Building::checkIfConflict(*b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
+						thisBlockBuildings.push_back(*b);
+						//buildingList.push_back(b);
+						models.push_back(b);
 						break;
 					}
 					else{
@@ -388,7 +395,15 @@ int main() {
 		}
 	}
 
-	
+	for (int i = 0; i < 100; i++)
+	{
+		Vehicle vehicle;
+		vehicle.assignStreet(&streetList);
+		vehicle.build();
+		vehicle.bindToModel();
+		
+		vehicles.push_back(vehicle);
+	}
 	
 
 	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
@@ -411,6 +426,8 @@ int main() {
 			}
 			tempAngle = verticleAngle;
 		}
+		tempAngle = verticleAngle;
+
 		vec3 oldCameraPos(cameraPosition);
 
 		//Incrementing cameraPosition
@@ -438,9 +455,9 @@ int main() {
 		}
 
 		bool buildingHit = false;
-		for (int j = 0; j < buildingList.size(); j++)
+		for (int j = 0; j < models.size(); j++)
 		{
-			if (!buildingList[j].isPointLegal(cameraPosition))
+			if (!models[j]->isPointLegal(cameraPosition))
 			{
 				buildingHit = true;
 				break;
@@ -494,21 +511,27 @@ int main() {
 		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
 		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
 
-		// Rendering. TODO: foreach loop of RawModels in scene
-		//render(building);
-		for (int k = 0; k < buildingList.size(); k++){
-			render(buildingList[k]);
+		// Render all models
+		for (int k = 0; k < models.size(); k++){
+			render(models[k]);
 		}
 
-		render(world);
-		for (int j = 0; j < streetList.size(); j++){
-			render(streetList[j]);
-		}
+		render(&world);
+
 		for (int j = 0; j < coinList.size(); j++){
 			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(*coinList[j].coinModel));
 			Coin::rotateToFace(coinList[j], cameraPosition, Vright);
-			render(coinList[j]);
+			render(&coinList[j]);
+			
 
+		}
+	
+		for (unsigned j = 0; j < vehicles.size(); j++)
+		{
+			vehicles[j].tick();
+			mat4 vecModel(vehicles[j].getModelMatrix());
+			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(vecModel));
+			render(&vehicles[j]);
 		}
 
 		// Update other events like input handling
