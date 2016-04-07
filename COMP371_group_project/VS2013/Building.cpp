@@ -151,7 +151,7 @@ bool Building::isBuildingPointLegal(glm::vec3 point) {
 	return true;
 }
 
-Building* Building::generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block){
+Building* Building::generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block, float heightBoost){
 	float lowSize = max/20.0f;
 	float highSize = max/5.0f;
 	float width = lowSize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highSize - lowSize)));
@@ -159,7 +159,7 @@ Building* Building::generateRandomBuilding(glm::vec3 position, float max, glm::v
 	float height = 0;
 
 	//float heightFactor = glm::length((position)/50.0f);
-	float heightFactor = (abs(block[0]) + abs(block[1])/2.0f);
+	float heightFactor = ((abs(block[0]) + abs(block[1])/2.0f)) * heightBoost;
 	float lowHeight = (max / 2.0f)*heightFactor;
 	float highHeight = (max / 5.0f)*heightFactor;
 

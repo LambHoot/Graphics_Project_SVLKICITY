@@ -32,6 +32,11 @@ using namespace glm;
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
 #define DEG_TO_RAD	M_PI/180.0f
 
+int numCars;
+int buildingsPerBlock;
+float heightboost;
+int buildingFailCheck;
+
 GLFWwindow* window = 0x00;
 
 GLuint shader_program = 0;
@@ -298,7 +303,14 @@ void remove(std::vector<T>& vec, size_t pos)
 int main() {
 	initialize();
 
-	
+	cout << "How many vehicles should be generated? Recommended: 100" << endl;
+	cin >> numCars;
+	cout << "Attempt how many buildings per block? Recommended: 50" << endl;
+	cin >> buildingsPerBlock;
+	cout << "Height boost factor? Default: 1" << endl;
+	cin >> heightboost;
+	cout << "Building placement failure check? Recommended: 10" << endl;
+	cin >> buildingFailCheck;
 
 	int nbCoins = 0;
 	int nbCollectedCoins = 0;
@@ -350,7 +362,7 @@ int main() {
 	for (int x = 0; x < streetXList.size(); x++){
 		for (int z = 0; z < streetZList.size(); z++){
 			vector <Building> thisBlockBuildings;
-			for (int nb = 0; nb < 50; nb++){
+			for (int nb = 0; nb < buildingsPerBlock; nb++){
 				//generate 20 buildings per block
 				float lowX = streetXList[x];
 				float highX = streetXList[x] + xOffset * 10.0f;
@@ -359,9 +371,9 @@ int main() {
 				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
 				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
 				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
-				Building* b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) });
+				Building* b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) }, heightboost);
 				int nbFailures = 0;
-				while (nbFailures < 10){
+				while (nbFailures < buildingFailCheck){
 					if (Building::checkIfConflict(*b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
 						thisBlockBuildings.push_back(*b);
 						//buildingList.push_back(b);
@@ -377,7 +389,7 @@ int main() {
 		}
 	}
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < numCars; i++)
 	{
 		Vehicle vehicle;
 		vehicle.assignStreet(&streetList);
