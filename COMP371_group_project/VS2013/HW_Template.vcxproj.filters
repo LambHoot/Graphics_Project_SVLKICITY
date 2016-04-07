@@ -73,5 +73,11 @@
     <ClInclude Include="Street.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Coin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ThirdParty\freetype\internal\autohint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

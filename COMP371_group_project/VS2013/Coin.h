@@ -31,6 +31,6 @@ public:
 	~Coin();
 	void bindToModel();
 	static bool isCoinTouched(Coin c, vec3 point);
-	static void rotateToFace(Coin c, vec3 point);
+	static void rotateToFace(Coin c, vec3 point, vec3 camRight);
 };
 

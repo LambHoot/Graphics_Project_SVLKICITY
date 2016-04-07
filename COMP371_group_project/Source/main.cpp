@@ -73,14 +73,8 @@ int mouseSpeed = 1.0f;
 double xpos = 0, ypos = 0;
 double currentTime = 0, lastTime = 0;
 float deltaTime = 0.0f;
-
+bool pauseCam = false;
 vector<Vehicle> vehicles;
-
-void loadTexture(){
-
-
-
-}
 
 // Movement variables
 bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
@@ -93,42 +87,58 @@ void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mo
 		break;
 	case GLFW_KEY_LEFT:
 	case GLFW_KEY_A:
-		if (action == GLFW_PRESS){
-			leftKey = true;
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				leftKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE){
+		if (action == GLFW_RELEASE){
 			leftKey = false;
 		}
 	case GLFW_KEY_RIGHT:
 	case GLFW_KEY_D:
-		if (action == GLFW_PRESS){
-			rightKey = true;
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				rightKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE){
+		if (action == GLFW_RELEASE){
 			rightKey = false;
 		}
 		break;
 	case GLFW_KEY_UP:
 	case GLFW_KEY_W:
-		if (action == GLFW_PRESS){
-			upKey = true;
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				upKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE){
+		if (action == GLFW_RELEASE){
 			upKey = false;
 		}
 		break;
 	case GLFW_KEY_DOWN:
 	case GLFW_KEY_S:
-		if (action == GLFW_PRESS){
-			downKey = true;
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				downKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE){
+		if (action == GLFW_RELEASE){
 			downKey = false;
 		}
 		break;
 	case GLFW_KEY_N:
 		if (action == GLFW_PRESS){
 			noclip = !noclip;
+		}
+	case GLFW_KEY_T:
+		if (action == GLFW_PRESS){
+			pauseCam = false;
+			leftKey = false;
+			rightKey = false;
+			upKey = false;
+			downKey = false;
 		}
 	default: break;
 	}
@@ -245,11 +255,6 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 
-	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
-
-	//appearing in the vertex shader.
-	glBindAttribLocation(ProgramID, 1, "in_Color");
-
 	glLinkProgram(ProgramID);
 
 	// Check the program
@@ -282,11 +287,6 @@ void render(RawModel* model){
 	glBindVertexArray(0);
 }
 
-vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
-
-	return vec;
-}
-
 template <typename T>
 void remove(std::vector<T>& vec, size_t pos)
 {
@@ -298,6 +298,9 @@ void remove(std::vector<T>& vec, size_t pos)
 int main() {
 	initialize();
 
+	
+
+	int nbCoins = 0;
 	int nbCollectedCoins = 0;
 
 	///Load the shaders
@@ -312,27 +315,15 @@ int main() {
 	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
 	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
 	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
+
+	//creating object containers
 	vector<Street> streetList;
 
 	vector<float> streetXList;
 	vector<float> streetZList;
-
-	//vector<Building> buildingList;
-
 	vector<Coin> coinList;
 
 	// BUILDING OBJECTS!
-
-	// 10 streets will exist in each direction
-	Building building = Building(5.0f, 1.0f);
-
-	Coin coin = Coin(glm::vec3{0.0f, 110.0f, 0.0f});
-	Coin coin2 = Coin(glm::vec3{ 10.0f, 110.0f, 0.0f });
-	Coin coin3 = Coin(glm::vec3{ 20.0f, 110.0f, 0.0f });
-	coinList.push_back(coin);
-	coinList.push_back(coin2);
-	coinList.push_back(coin3);
-
 	World world = World(farLeftMain, bottomRightMain);
 	Street street = Street({ -500.0f, 1.0f, 500.0f }, { -490.0f, 1.0f, -500.0f });
 
@@ -342,6 +333,9 @@ int main() {
 		streetList.push_back(*s);
 		models.push_back(s);
 		streetXList.push_back(i + xOffset);
+		Coin c = Coin(vec3{ i + (xOffset / 2.0f), 0.0f, farLeftMain.z + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.z - farLeftMain.z))) });
+		coinList.push_back(c);
+		nbCoins++;
 	}
 	//Pushing z axis streets
 	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
@@ -349,6 +343,9 @@ int main() {
 		streetList.push_back(*s);
 		models.push_back(s);
 		streetZList.push_back(j + zOffset);
+		Coin c = Coin(vec3{ farLeftMain.x + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.x - farLeftMain.x))), 0.0f, j + (zOffset / 2.0f) });
+		coinList.push_back(c);
+		nbCoins++;
 	}
 	for (int x = 0; x < streetXList.size(); x++){
 		for (int z = 0; z < streetZList.size(); z++){
@@ -409,10 +406,13 @@ int main() {
 		//Determine cursor cameraPosition and angle
 		glfwGetCursorPos(window, &xpos, &ypos);
 		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
-		horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
-		tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
-		if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
-			verticleAngle = tempAngle;
+		if (!pauseCam){
+			horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+			tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+			if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+				verticleAngle = tempAngle;
+			}
+			tempAngle = verticleAngle;
 		}
 		tempAngle = verticleAngle;
 
@@ -469,6 +469,15 @@ int main() {
 			}
 		}
 
+		//WIN GAME!
+		if (nbCollectedCoins == nbCoins){
+			//DISPLAY YOU WIN!
+			pauseCam = true;
+
+			nbCollectedCoins = 0;
+		}
+
+
 		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
 		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
 		up = cross(Vright, direction);
@@ -478,8 +487,7 @@ int main() {
 
 		// Clear Screen with color
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.2f, 0.6f, 1.0f, 1.0f);
 		glPointSize(point_size);
 
 		glUseProgram(shader_program);
@@ -498,8 +506,9 @@ int main() {
 
 		for (int j = 0; j < coinList.size(); j++){
 			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(*coinList[j].coinModel));
+			Coin::rotateToFace(coinList[j], cameraPosition, Vright);
 			render(&coinList[j]);
-			Coin::rotateToFace(coinList[j], cameraPosition);
+			
 
 		}
 	
