@@ -6,9 +6,13 @@ layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec3 in_normal;
 layout(location = 2) in vec3 vertexColor;
 
+//layout(location = 3) in vec2 vertexUV;
+
 out vec3 world_pos;
 out vec3 world_normal;
 out vec4 viewSpace;
+
+//out vec2 UV;
 
 out vec3 frag_Color;
 
@@ -23,6 +27,8 @@ void main () {
 	gl_Position = proj_matrix * viewSpace;
 
 	frag_Color = vertexColor;
+
+	//UV = vertexUV;
 }
 
 

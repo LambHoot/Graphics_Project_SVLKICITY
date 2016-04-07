@@ -4,6 +4,7 @@
 in vec3 world_pos;
 in vec3 world_normal;
 in vec4 viewSpace;
+//in vec2 UV
 
 in vec3 frag_Color;
 out vec3 color;
@@ -11,8 +12,12 @@ out vec3 color;
 const vec3 fogColor = vec3(0.5, 0.5,0.5);
 const float FogDensity = 0.01;
 
+uniform sampler2D myTextureSampler;
+
 void main(){
 	vec3 finalColor = vec3(0, 0, 0);
+
+	//frag_Color = texture( myTextureSampler, UV ).rgb;
 
 	vec3 lightColor = frag_Color;
 

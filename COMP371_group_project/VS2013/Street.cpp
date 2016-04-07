@@ -28,8 +28,8 @@ void Street::loadRoad(glm::vec3 topLeft, glm::vec3 bottomRight){
 		glm::vec3(3, 2, 0)
 	};
 
+	GLfloat monochrome = 0.5;
 	for (unsigned int i = 0; i < Streetpositions.size(); i++){
-		GLfloat monochrome = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		Streetcolors.push_back(glm::vec3(
 			monochrome,
 			monochrome,

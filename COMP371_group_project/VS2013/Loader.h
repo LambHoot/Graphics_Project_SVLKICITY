@@ -8,6 +8,13 @@ using namespace std;
 static class Loader
 {
 private:
+	static const unsigned long FOURCC_DXT1 = 0x31545844; //(MAKEFOURCC('D','X','T','1'))
+	static const unsigned long FOURCC_DXT3 = 0x33545844; //(MAKEFOURCC('D','X','T','3'))
+	static const unsigned long FOURCC_DXT5 = 0x35545844; //(MAKEFOURCC('D','X','T','5'))
+
+	static void bindTextures();
+	static GLuint loadDDS(const char * imagepath);
+
 	static vector<GLuint> VAO, VBO;
 	static const int point_size = 3;
 
