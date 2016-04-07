@@ -8,26 +8,43 @@
 #include "gtc/type_ptr.hpp"
 #include "gtc/constants.hpp"
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
+using namespace glm;
 
+#include "RawModel.h"
 
-class Building
+using namespace glm;
+
+class Building : public RawModel
 {
 
 private:
-	float height;
-	float width;
-	glm::vec3 center;
-	vector<glm::vec3> bldgPoints;
+	const float SIDE_COLLISION_PADDING = 0.2f;
+	const float TOP_COLLISION_PADDING = 0.5f;
 
+	void build();
+	void build(vec3 passColor);
+	void sendToPosition();
+	void bindToModel();
 
 public:
-	Building(float h, float w, glm::vec3 c);
+	float height;
+	float width;
+	float depth;
+	vector<glm::vec3> colors;
+	vector<glm::vec3> positions;
+	glm::vec3 position;
+	Building(float h, float w, float d, glm::vec3 position);
+	Building(float h, float w, float d, glm::vec3 position, vec3 passedColor);
+	Building(float h, float w, glm::vec3 position);
+	Building(float h, float w);
+	static Building* generateRandomBuilding(glm::vec3 position, float max, glm::vec2 block, float heightBoost);
+	static bool checkIfConflict(Building build, vector<Building> buildList, float s1, float s2, float xOff, float zOff);
+	bool Building::isBuildingPointLegal(glm::vec3 point);
 	~Building();
 
-	vector<glm::vec3> generateBldg(float h, float w, glm::vec3 c);
-	vector<glm::vec3> generateRandomBldg(float wRangeLO, float wRangeHI, float hRangeLO, float hRangeHI, glm::vec3 c);
-	vector<glm::vec3> getBldgPoints();
+	bool isPointLegal(vec3 point) override;
 };
 

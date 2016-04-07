@@ -73,13 +73,27 @@
   <ItemGroup>
     <ClCompile Include="..\Source\main.cpp" />
     <ClCompile Include="Building.cpp" />
+    <ClCompile Include="Coin.cpp" />
+    <ClCompile Include="Loader.cpp" />
+    <ClCompile Include="RawModel.cpp" />
+    <ClCompile Include="Street.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\COMP371_hw1.fss" />
     <None Include="..\Source\COMP371_hw1.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ThirdParty\freetype\internal\autohint.h" />
     <ClInclude Include="Building.h" />
+    <ClInclude Include="CImg.h" />
+    <ClInclude Include="Coin.h" />
+    <ClInclude Include="Loader.h" />
+    <ClInclude Include="RawModel.h" />
+    <ClInclude Include="Street.h" />
+    <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

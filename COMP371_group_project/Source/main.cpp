@@ -17,10 +17,25 @@
 #include <cctype>
 #include <gtx/rotate_vector.hpp>
 
+// Custom Defined headers
+#include "../VS2013/RawModel.h"
+#include "../VS2013/Loader.h"
+#include "../VS2013/Building.h"
+#include "../VS2013/World.h"
+#include "../VS2013/Street.h"
+#include "../VS2013/Vehicle.h"
+#include "../VS2013/Coin.h"
+
 using namespace std;
+using namespace glm;
 
 #define M_PI        3.14159265358979323846264338327950288f   /* pi */
 #define DEG_TO_RAD	M_PI/180.0f
+
+int numCars;
+int buildingsPerBlock;
+float heightboost;
+int buildingFailCheck;
 
 GLFWwindow* window = 0x00;
 
@@ -29,39 +44,47 @@ GLuint shader_program = 0;
 GLuint view_matrix_id = 0;
 GLuint model_matrix_id = 0;
 GLuint proj_matrix_id = 0;
-
+GLuint transparent_factor_id = 0;
+GLuint viewPosLoc_id = 0;
 
 ///Transformations
 glm::mat4 proj_matrix;
 glm::mat4 view_matrix;
 glm::mat4 model_matrix;
 
-
-GLuint VBO, VAO, EBO;
-
+// Given a 3D environment
 GLfloat point_size = 3.0f;
-
-GLfloat* g_vertex_buffer_data;
 
 //Window resize
 GLuint WIDTH = 800;
 GLuint HEIGHT = 800;
+
+vector<RawModel*> models;
+vector<RawModel*> winBuildings;
+
 void window_resize_callback(GLFWwindow* window, int width, int height){
 	WIDTH = width;
 	HEIGHT = height;
 	//reset view
 	glViewport(0, 0, WIDTH, HEIGHT);
-	//reset ortho
-	glOrtho(0, (GLfloat)WIDTH, 0, (GLfloat)HEIGHT, 0.0f, 0.0f);//change to proj
-	//reset proj
-	proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 50.0f);
 }
 
-float translateSensitivityX = 3.0f;
-float translateSensitivityY = 3.0f;
-float isPressedy = 0.0f;
-float isPressedx = 0.0f;
-void key_callback (GLFWwindow *_window, int key, int scancode, int action, int mods){
+glm::vec3 cameraPosition = glm::vec3(0, 100, -10);
+glm::vec3 direction, Vright, up;
+float horizontalAngle = 0.0f;
+float verticleAngle = 0.0f;
+float initialFoV = 45.0f;
+float speed = 100.0f;
+int mouseSpeed = 1.0f;
+double xpos = 0, ypos = 0;
+double currentTime = 0, lastTime = 0;
+float deltaTime = 0.0f;
+bool pauseCam = false, win = false;
+vector<Vehicle> vehicles;
+
+// Movement variables
+bool leftKey = false, rightKey = false, upKey = false, downKey = false, noclip = false;
+void key_callback(GLFWwindow *_window, int key, int scancode, int action, int mods){
 	switch (key) {
 	case GLFW_KEY_ESCAPE:
 		if (action == GLFW_PRESS){
@@ -69,42 +92,66 @@ void key_callback (GLFWwindow *_window, int key, int scancode, int action, int m
 		}
 		break;
 	case GLFW_KEY_LEFT:
-		if (action == GLFW_PRESS){
-			isPressedy = translateSensitivityY;
+	case GLFW_KEY_A:
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				leftKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
+		if (action == GLFW_RELEASE){
+			leftKey = false;
 		}
-		break;
 	case GLFW_KEY_RIGHT:
-		if (action == GLFW_PRESS){
-			isPressedy = -translateSensitivityY;
+	case GLFW_KEY_D:
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				rightKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedy = 0.0f;
+		if (action == GLFW_RELEASE){
+			rightKey = false;
 		}
 		break;
 	case GLFW_KEY_UP:
-		if (action == GLFW_PRESS){
-			isPressedx = translateSensitivityX;
+	case GLFW_KEY_W:
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				upKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedx = 0.0f;
+		if (action == GLFW_RELEASE){
+			upKey = false;
 		}
 		break;
 	case GLFW_KEY_DOWN:
-		if (action == GLFW_PRESS){
-			isPressedx = -translateSensitivityX;
+	case GLFW_KEY_S:
+		if (!pauseCam){
+			if (action == GLFW_PRESS){
+				downKey = true;
+			}
 		}
-		else if (action == GLFW_RELEASE) {
-			isPressedx = 0.0f;
+		if (action == GLFW_RELEASE){
+			downKey = false;
 		}
 		break;
+	case GLFW_KEY_N:
+		if (action == GLFW_PRESS){
+			noclip = !noclip;
+		}
+		break;
+	case GLFW_KEY_T:
+		if (action == GLFW_PRESS){
+			pauseCam = false;
+			leftKey = false;
+			rightKey = false;
+			upKey = false;
+			downKey = false;
+			win = true;
+		}
 	default: break;
 	}
-	
-}
 
+}
 
 bool initialize() {
 	/// Initialize GL context and O/S window using the GLFW helper library
@@ -115,7 +162,7 @@ bool initialize() {
 
 	/// Create a window of size 800x800
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
-	window = glfwCreateWindow(WIDTH, HEIGHT, "COMP371: Assignment 2 - Hermite Splines - d_kefal_27019920", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "SOUVLAKI CITY", NULL, NULL);
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
@@ -124,10 +171,6 @@ bool initialize() {
 	//register callbacks
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowSizeCallback(window, window_resize_callback);
-
-	//ortho projection 
-	proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 50.0f);
-	glOrtho(0, (GLfloat)WIDTH, 0, (GLfloat)HEIGHT, 0.0f, 0.0f);
 
 	glfwMakeContextCurrent(window);
 
@@ -145,18 +188,11 @@ bool initialize() {
 	glEnable(GL_DEPTH_TEST); /// Enable depth-testing
 	glDepthFunc(GL_LESS);	/// The type of testing i.e. a smaller value as "closer"
 
-	return true;
-}
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-bool cleanUp() {
-	glDisableVertexAttribArray(0);
-	//Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
-
-	// Close GL context and any other GLFW resources
-	glfwTerminate();
+	//Seed random number generation
+	srand(static_cast <unsigned> (time(0)));
 
 	return true;
 }
@@ -230,7 +266,7 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 
-	glBindAttribLocation(ProgramID, 0, "in_Position");
+	glBindAttribLocation(ProgramID, 0, "in_cameraPosition");
 
 	//appearing in the vertex shader.
 	glBindAttribLocation(ProgramID, 1, "in_Color");
@@ -254,80 +290,308 @@ GLuint loadShaders(std::string vertex_shader_path, std::string fragment_shader_p
 	view_matrix_id = glGetUniformLocation(ProgramID, "view_matrix");
 	model_matrix_id = glGetUniformLocation(ProgramID, "model_matrix");
 	proj_matrix_id = glGetUniformLocation(ProgramID, "proj_matrix");
+	viewPosLoc_id = glGetUniformLocation(ProgramID, "viewPos");
+	transparent_factor_id = glGetUniformLocation(ProgramID, "transparent_factor");
 
 	return ProgramID;
 }
 
+void render(RawModel* model){
+	glBindVertexArray(model->getVAOID());
+	glEnableVertexAttribArray(0);
+	glDrawElements(GL_TRIANGLES, model->getVertexCount(), GL_UNSIGNED_INT, (void*)0);
+	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
+}
+
+vector<Coin> removeCoinFromList(vector<Coin> vec, int index){
+
+	return vec;
+}
+
+template <typename T>
+void remove(std::vector<T>& vec, size_t pos)
+{
+	std::vector<T>::iterator it = vec.begin();
+	std::advance(it, pos);
+	vec.erase(it);
+}
 
 int main() {
-
 	initialize();
 
-	int bufferSize;
-	int lineRange;
-	int triangleSize = 3 * 3;
-	int triangleHeadSP = 0;
+	cout << "How many vehicles should be generated? Recommended: 100" << endl;
+	cin >> numCars;
+	cout << "Attempt how many buildings per block? Recommended: 50" << endl;
+	cin >> buildingsPerBlock;
+	cout << "Height boost factor? Default: 1" << endl;
+	cin >> heightboost;
+	cout << "Building placement failure check? Recommended: 10" << endl;
+	cin >> buildingFailCheck;
+
+	int nbCoins = 0;
+	int nbCollectedCoins = 0;
 
 	///Load the shaders
 	shader_program = loadShaders("../Source/COMP371_hw1.vs", "../Source/COMP371_hw1.fss");
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
+	//Set the camera
+	view_matrix = glm::translate(view_matrix, glm::vec3(0, 0, -10)); //Camera's cameraPosition
+	proj_matrix = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f); //Camera's "lense"
 
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
+	//create RawModel based on vertex and index data
+	glm::vec3 farLeftMain = { -500.0f, 0.0f, 500.0f };
+	glm::vec3 bottomRightMain = { 500.0f, 0.0f, -500.0f };
+	float xOffset = (bottomRightMain.x - farLeftMain.x)/100; // 1000 lanes exist with this width
+	float zOffset = -(bottomRightMain.z - farLeftMain.z) /100; // 1000 lanes exist with this width
 
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data)*1.0f, g_vertex_buffer_data, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-		);
+	//creating object containers
+	vector<Street> streetList;
 
-	//proj_matrix = glm::ortho(0.0f, (GLfloat)WIDTH, (GLfloat)HEIGHT, 0.0f, 0.0f, 100.0f);
-	view_matrix = glm::translate(view_matrix, glm::vec3(WIDTH / 2, HEIGHT / 2, -30.0f));
+	vector<float> streetXList;
+	vector<float> streetZList;
 
+	//vector<Building> buildingList;
+
+	vector<Coin> coinList;
+
+	// BUILDING OBJECTS!
+	vector<Building> SVbuilding;
+
+	// 10 streets will exist in each direction
+	Building building = Building(5.0f, 1.0f);
+
+	World world = World(farLeftMain, bottomRightMain);
+	Street street = Street({ farLeftMain.x, 1.0f, farLeftMain.z }, { farLeftMain.x + xOffset, 1.0f, bottomRightMain.z });
+
+	//Pushing x axis streets
+	for (float i = farLeftMain.x; i < bottomRightMain.x; i += xOffset * 10){
+		Street* s = new Street({ i, 1.0f, farLeftMain.z }, { i + xOffset, 1.0f, bottomRightMain.z });
+		streetList.push_back(*s);
+		models.push_back(s);
+		streetXList.push_back(i + xOffset);
+		Coin c = Coin(vec3{ i + (xOffset / 2.0f), 0.0f, farLeftMain.z + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.z - farLeftMain.z))) });
+		coinList.push_back(c);
+		nbCoins++;
+	}
+	//Pushing z axis streets
+	for (float j = bottomRightMain.z; j < farLeftMain.z; j += zOffset * 10){
+		Street* s = new Street({bottomRightMain.x, 1.0f, j}, {farLeftMain.x, 1.0f, j + zOffset});
+		streetList.push_back(*s);
+		models.push_back(s);
+		streetZList.push_back(j + zOffset);
+		Coin c = Coin(vec3{ farLeftMain.x + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (bottomRightMain.x - farLeftMain.x))), 0.0f, j + (zOffset / 2.0f) });
+		coinList.push_back(c);
+		nbCoins++;
+	}
+	for (int x = 0; x < streetXList.size(); x++){
+		for (int z = 0; z < streetZList.size(); z++){
+			vector <Building> thisBlockBuildings;
+			for (int nb = 0; nb < buildingsPerBlock; nb++){
+				//generate 20 buildings per block
+				float lowX = streetXList[x];
+				float highX = streetXList[x] + xOffset * 10.0f;
+				float lowZ = streetZList[z];
+				float highZ = streetZList[z] + zOffset * 10.0f;
+				float bX = lowX + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highX - lowX)));
+				float bZ = lowZ + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (highZ - lowZ)));
+				glm::vec3 blockPlacement = { bX, 0.0f, bZ };
+				Building* b = Building::generateRandomBuilding(blockPlacement, xOffset * 10, glm::vec2{ (streetXList[x] / (xOffset * 10.0f)), (streetZList[z] / (zOffset * 10.0f)) }, heightboost);
+				int nbFailures = 0;
+				while (nbFailures < buildingFailCheck){
+					if (Building::checkIfConflict(*b, thisBlockBuildings, streetXList[x], streetZList[z], xOffset, zOffset)){
+						thisBlockBuildings.push_back(*b);
+						//buildingList.push_back(b);
+						models.push_back(b);
+						if (SVbuilding.size() == 0){
+							int choice = 0 + static_cast <int> (rand()) / (static_cast <int> (RAND_MAX / (99 - 0)));
+							if (choice == 50){
+								SVbuilding.push_back(*b);
+							}
+							else if ((x == streetXList.size() - 1) && (z == streetZList.size() - 1)){
+								SVbuilding.push_back(*b);
+							}
+						}
+						break;
+					}
+					else{
+						nbFailures++;
+					}
+				}
+
+			}
+		}
+	}
+
+	for (int i = 0; i < numCars; i++)
+	{
+		Vehicle vehicle;
+		vehicle.assignStreet(&streetList);
+		vehicle.build();
+		vehicle.bindToModel();
+		
+		vehicles.push_back(vehicle);
+	}
+	
+
+	glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+	noclip = false;
+	float tempAngle = 0.0f;
 	while (!glfwWindowShouldClose(window)) {
 
-		// wipe the drawing surface clear
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.1f, 0.2f, 0.2f, 1.0f);
-		glPointSize(point_size);
 
-		//translating camera on the x and y axis
-		if ((isPressedy != 0.0f) || (isPressedx != 0.0f)){
-			view_matrix = glm::translate(view_matrix, glm::vec3(-isPressedy, -isPressedx, 0.0f));
+		
+		glUniform3f(viewPosLoc_id, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
+
+		//Getting Time data
+		currentTime = glfwGetTime();
+		deltaTime = float(currentTime - lastTime);
+
+		//Determine cursor cameraPosition and angle
+		glfwGetCursorPos(window, &xpos, &ypos);
+		glfwSetCursorPos(window, (WIDTH / 2), (HEIGHT / 2));
+		if (!pauseCam){
+			horizontalAngle += mouseSpeed * deltaTime * (float((WIDTH / 2.0f) - xpos));
+			tempAngle += mouseSpeed * deltaTime * (float((HEIGHT / 2.0f) - ypos));
+			if (tempAngle < (3.14f / 2.0f) && tempAngle >(-3.14f / 2.0f)){
+				verticleAngle = tempAngle;
+			}
+			tempAngle = verticleAngle;
+		}
+		tempAngle = verticleAngle;
+
+		vec3 oldCameraPos(cameraPosition);
+
+		//Incrementing cameraPosition
+		if (upKey){
+			if (noclip){
+				cameraPosition += direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition += vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		else if (downKey){
+			if (noclip){
+				cameraPosition -= direction * deltaTime * speed;
+			}
+			else if (!noclip){
+				cameraPosition -= vec3(direction.x, 0, direction.z) * deltaTime * speed;
+			}
+		}
+		if (leftKey){
+			cameraPosition -= Vright * deltaTime * speed;
+		}
+		else if (rightKey){
+			cameraPosition += Vright * deltaTime * speed;
 		}
 
-		//REPASS THE DATA TO THE BUFFER
-		//DK CHANGE THE * 3 TO SIZE OF POINTS VECTOR
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data)*(3), g_vertex_buffer_data, GL_DYNAMIC_DRAW);
+		bool buildingHit = false;
+		if (!noclip){
+			for (int j = 0; j < models.size(); j++)
+			{
+				if (!models[j]->isPointLegal(cameraPosition))
+				{
+					buildingHit = true;
+					break;
+				}
+			}
+
+			if (buildingHit || !world.isPointLegal(cameraPosition))
+			{
+				cameraPosition = oldCameraPos;
+			}
+		}
+		
+
+		for (int j = 0; j < coinList.size(); j++)
+		{
+			if (Coin::isCoinTouched(coinList[j], cameraPosition))
+			{
+				//remove coin
+				remove(coinList, j);
+				//increase coin count
+				nbCollectedCoins++;
+				break;
+			}
+		}
+
+		//WIN GAME!
+		if (win || nbCollectedCoins == nbCoins){
+			//DISPLAY YOU WIN!
+			//pauseCam = true;
+			vec3 winColor = vec3(1, 1, 0);
+			//Building winBuilding = Building(10000000.0f, xOffset*9.0f, zOffset*9.0f, vec3((bottomRightMain.x / 10) + (xOffset / 2), -1, (farLeftMain.z/10)+(zOffset / 2)), winColor);
+			Building* winBuilding = new Building(2000.0f, SVbuilding[0].width + 0.5, SVbuilding[0].depth + 0.5, SVbuilding[0].position, winColor);
+			winBuildings.push_back(winBuilding);
+			nbCollectedCoins = 0;
+			win = false;
+		}
+		if (winBuildings.size() > 0){
+			if (!winBuildings[0]->isPointLegal(cameraPosition)){
+				cout << "You WIN!" << endl;
+				break;
+			}
+		}
+
+		direction = vec3(cos(verticleAngle) * sin(horizontalAngle), sin(verticleAngle), cos(verticleAngle) * cos(horizontalAngle));
+		Vright = vec3(sin(horizontalAngle - (3.14f / 2.0f)), 0, cos(horizontalAngle - (3.14f / 2.0f)));
+		up = cross(Vright, direction);
+
+		view_matrix = lookAt(cameraPosition, cameraPosition + direction, up);
+
+
+		// Clear Screen with color
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+		glPointSize(point_size);
 
 		glUseProgram(shader_program);
 
 		//Pass the values of the three matrices to the shaders
-		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, glm::value_ptr(proj_matrix));
-		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
-		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		glUniformMatrix4fv(proj_matrix_id, 1, GL_FALSE, value_ptr(proj_matrix));
+		glUniformMatrix4fv(view_matrix_id, 1, GL_FALSE, value_ptr(view_matrix));
+		glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(model_matrix));
+		glUniform1i(transparent_factor_id, 0);
 
-		glBindVertexArray(VAO);
+		// Render all models
+		for (int k = 0; k < models.size(); k++){
+			render(models[k]);
+		}
+		glUniform1i(transparent_factor_id, 1);
+		for (int l = 0; l < winBuildings.size(); l++){
+			render(winBuildings[l]);
+		}
+		glUniform1i(transparent_factor_id, 0);
+		render(&world);
 
+		for (int j = 0; j < coinList.size(); j++){
+			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(*coinList[j].coinModel));
+			Coin::rotateToFace(coinList[j], cameraPosition, Vright);
+			render(&coinList[j]);
+			
 
-		glBindVertexArray(0);
+		}
+	
+		glUniform1i(transparent_factor_id, 2);
+		for (unsigned j = 0; j < vehicles.size(); j++)
+		{
+			vehicles[j].tick();
+			mat4 vecModel(vehicles[j].getModelMatrix());
+			glUniformMatrix4fv(model_matrix_id, 1, GL_FALSE, value_ptr(vecModel));
+			render(&vehicles[j]);
+		}
 
-		// update other events like input handling
+		// Update other events like input handling
 		glfwPollEvents();
-		// put the stuff we've been drawing onto the display
+		// Put the stuff we've been drawing onto the display
 		glfwSwapBuffers(window);
-	}
 
-	cleanUp();
+		//Setting lastTime
+		lastTime = currentTime;
+	}
+	system("pause");
+	Loader::cleanUp();
 	return 0;
 }
